@@ -1,773 +1,1714 @@
-<!doctype html>
-<html lang="id" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KPI Monitoring Dashboard</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <style>
-    body {
-      box-sizing: border-box;
-    }
-    * {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    .stat-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .stat-card:hover {
-      transform: translateY(-4px);
-    }
-    .nav-item {
-      transition: all 0.2s ease;
-    }
-    .nav-item.active {
-      color: #667eea;
-    }
-    .nav-item.active svg {
-      stroke: #667eea;
-    }
-    .pulse-dot {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .slide-up {
-      animation: slideUp 0.5s ease-out;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .progress-ring {
-      transition: stroke-dashoffset 0.5s ease-in-out;
-    }
-    .notification-badge {
-      animation: bounce 1s ease infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-  </style>
- </head>
- <body class="h-full bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-100 overflow-auto">
-  <div id="app" class="h-full w-full flex flex-col"><!-- Header Section -->
-   <header class="px-4 pt-4 pb-2">
-    <div class="glass-card rounded-2xl p-4 shadow-lg slide-up">
-     <div class="flex items-center justify-between"><!-- Profile Section -->
-      <div class="flex items-center gap-3">
-       <div class="relative">
-        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg"><span id="user-avatar">AB</span>
-        </div>
-        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-         <svg class="w-3 h-3 text-white" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-         </svg>
-        </div>
-       </div>
-       <div>
-        <h2 id="display-name" class="font-bold text-gray-800 text-lg">Ahmad Budiman</h2>
-        <div class="flex items-center gap-2"><span id="display-role" class="text-sm text-indigo-600 font-semibold">Business Builder</span> <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Active</span>
-        </div>
-       </div>
-      </div><!-- Notification Bell --> <button id="notification-btn" class="relative p-3 rounded-xl bg-white shadow-md hover:shadow-lg transition-all">
-       <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-       </svg><span id="notification-count" class="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">3</span> </button>
-     </div><!-- Due Date Info -->
-     <div class="mt-3 flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-200">
-      <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg><span class="text-sm text-amber-800">Jatuh Tempo: <strong>28 Februari 2025</strong></span>
-     </div>
-    </div>
-   </header><!-- Main Content -->
-   <main class="flex-1 px-4 py-2 overflow-auto"><!-- ===== HOME TAB ===== -->
-    <div id="tab-home" class="tab-content active"><!-- Notification Panel (Hidden by default) -->
-     <div id="notification-panel" class="hidden glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <div class="flex items-center justify-between mb-3">
-       <h3 class="font-bold text-gray-800">🔔 Notifikasi</h3><button id="close-notif" class="text-gray-400 hover:text-gray-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg></button>
-      </div>
-      <div class="space-y-2">
-       <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
-        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-         </svg>
-        </div>
-        <div>
-         <p class="text-sm font-semibold text-gray-800">Update Tersedia v2.5.0</p>
-         <p class="text-xs text-gray-600">Fitur baru dan perbaikan bug</p>
-        </div>
-       </div>
-       <div class="flex items-start gap-3 p-3 bg-purple-50 rounded-xl border border-purple-200">
-        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-         </svg>
-        </div>
-        <div>
-         <p class="text-sm font-semibold text-gray-800">Upgrade ke Academy</p>
-         <p class="text-xs text-gray-600">Tingkatkan level Anda sekarang!</p>
-        </div>
-       </div>
-       <div class="flex items-start gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-        <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
-         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-         </svg>
-        </div>
-        <div>
-         <p class="text-sm font-semibold text-gray-800">Target Mingguan Tercapai!</p>
-         <p class="text-xs text-gray-600">Selamat! Anda mencapai 105%</p>
-        </div>
-       </div>
-      </div>
-     </div><!-- TYFCB Progress Card -->
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <div class="flex items-center justify-between mb-3">
-       <h3 class="font-bold text-gray-800">📊 Progress TYFCB</h3><span class="text-xs text-gray-500">Target Bulanan</span>
-      </div>
-      <div class="flex items-center gap-4">
-       <div class="relative">
-        <svg class="w-24 h-24 transform -rotate-90"><circle cx="48" cy="48" r="40" stroke="#e5e7eb" stroke-width="8" fill="none" /> <circle id="progress-circle" cx="48" cy="48" r="40" stroke="url(#gradient)" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="75.36" class="progress-ring" /> <defs>
-          <lineargradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-           <stop offset="0%" stop-color="#667eea" />
-           <stop offset="100%" stop-color="#764ba2" />
-          </lineargradient>
-         </defs>
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center"><span id="progress-percent" class="text-xl font-bold text-gray-800">70%</span>
-        </div>
-       </div>
-       <div class="flex-1">
-        <div class="mb-2">
-         <p class="text-sm text-gray-600">Tercapai</p>
-         <p id="tyfcb-achieved" class="text-2xl font-bold text-indigo-600">Rp 35.000.000</p>
-        </div>
-        <div>
-         <p class="text-sm text-gray-600">Target</p>
-         <p id="tyfcb-target" class="text-lg font-semibold text-gray-800">Rp 50.000.000</p>
-        </div>
-       </div>
-      </div>
-     </div><!-- Stats Grid -->
-     <div class="grid grid-cols-2 gap-3 mb-4">
-      <div class="stat-card glass-card rounded-2xl p-4 shadow-lg">
-       <div class="flex items-center gap-2 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-         </svg>
-        </div><span class="text-xs text-gray-500">Minggu Ini</span>
-       </div>
-       <p id="weekly-slips" class="text-2xl font-bold text-gray-800">12</p>
-       <p class="text-sm text-gray-600">Total Slips</p>
-      </div>
-      <div class="stat-card glass-card rounded-2xl p-4 shadow-lg">
-       <div class="flex items-center gap-2 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-         </svg>
-        </div><span class="text-xs text-gray-500">Bulan Ini</span>
-       </div>
-       <p id="monthly-visitors" class="text-2xl font-bold text-gray-800">48</p>
-       <p class="text-sm text-gray-600">Visitors</p>
-      </div>
-      <div class="stat-card glass-card rounded-2xl p-4 shadow-lg">
-       <div class="flex items-center gap-2 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-         </svg>
-        </div><span class="text-xs text-gray-500">Total</span>
-       </div>
-       <p id="total-speakers" class="text-2xl font-bold text-gray-800">8</p>
-       <p class="text-sm text-gray-600">Speakers</p>
-      </div>
-      <div class="stat-card glass-card rounded-2xl p-4 shadow-lg">
-       <div class="flex items-center gap-2 mb-2">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-         </svg>
-        </div><span class="text-xs text-gray-500">Growth</span>
-       </div>
-       <p class="text-2xl font-bold text-emerald-600">+23%</p>
-       <p class="text-sm text-gray-600">vs Bulan Lalu</p>
-      </div>
-     </div><!-- Upcoming Meeting -->
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <div class="flex items-center justify-between mb-3">
-       <h3 class="font-bold text-gray-800">📅 Meeting Berikutnya</h3><span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">Online</span>
-      </div>
-      <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-4 text-white">
-       <div class="flex items-center gap-3 mb-3">
-        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur">
-         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-         </svg>
-        </div>
-        <div>
-         <p class="font-bold text-lg">Senin, 24 Feb 2025</p>
-         <p class="text-white/80 text-sm">19:00 - 21:00 WIB</p>
-        </div>
-       </div>
-       <div class="grid grid-cols-3 gap-2 pt-3 border-t border-white/20">
-        <div class="text-center">
-         <p class="text-2xl font-bold">5</p>
-         <p class="text-xs text-white/80">Speakers</p>
-        </div>
-        <div class="text-center border-x border-white/20">
-         <p class="text-2xl font-bold">120</p>
-         <p class="text-xs text-white/80">Expected</p>
-        </div>
-        <div class="text-center">
-         <p class="text-2xl font-bold">2.5M</p>
-         <p class="text-xs text-white/80">Est. TYFCB</p>
-        </div>
-       </div>
-      </div>
-     </div><!-- Recent Activity -->
-     <div class="glass-card rounded-2xl p-4 mb-24 shadow-lg slide-up">
-      <div class="flex items-center justify-between mb-3">
-       <h3 class="font-bold text-gray-800">📝 Aktivitas Terbaru</h3><button id="add-activity-btn" class="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg font-medium hover:bg-indigo-700 transition-colors"> + Tambah </button>
-      </div>
-      <div id="activity-list" class="space-y-2"><!-- Activities will be rendered here -->
-       <div class="text-center py-6 text-gray-500">
-        <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <p class="text-sm">Belum ada aktivitas</p>
-        <p class="text-xs">Klik "Tambah" untuk mencatat aktivitas baru</p>
-       </div>
-      </div>
-     </div>
-    </div><!-- ===== SLIPS TAB ===== -->
-    <div id="tab-slips" class="tab-content">
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <h3 class="font-bold text-gray-800 mb-4">📄 Daftar Slip Mingguan</h3>
-      <div id="slips-list" class="space-y-3"><!-- Slips will be rendered here -->
-      </div>
-     </div>
-    </div><!-- ===== COMMUNITY TAB ===== -->
-    <div id="tab-community" class="tab-content">
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <h3 class="font-bold text-gray-800 mb-4">👥 Komunitas</h3>
-      <div class="space-y-3">
-       <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
-         👨
-        </div>
-        <div>
-         <p class="font-semibold text-gray-800">Anggota Aktif</p>
-         <p class="text-sm text-gray-600">1,245 orang bergabung</p>
-        </div>
-       </div>
-       <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-         💬
-        </div>
-        <div>
-         <p class="font-semibold text-gray-800">Diskusi Aktif</p>
-         <p class="text-sm text-gray-600">892 percakapan minggu ini</p>
-        </div>
-       </div>
-       <div class="flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
-        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold">
-         🏆
-        </div>
-        <div>
-         <p class="font-semibold text-gray-800">Top Contributor</p>
-         <p class="text-sm text-gray-600">Anda rank #12 komunitas</p>
-        </div>
-       </div>
-      </div>
-     </div>
-    </div><!-- ===== VISITORS TAB ===== -->
-    <div id="tab-visitors" class="tab-content">
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg slide-up">
-      <h3 class="font-bold text-gray-800 mb-4">👥 Daftar Visitors</h3>
-      <div id="visitors-list" class="space-y-3"><!-- Visitors will be rendered here -->
-      </div>
-     </div>
-    </div><!-- ===== SEARCH TAB ===== -->
-    <div id="tab-search" class="tab-content">
-     <div class="glass-card rounded-2xl p-4 mb-4 shadow-lg">
-      <div class="relative mb-4">
-       <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-       </svg><input type="text" id="search-input" placeholder="Cari aktivitas, visitor, atau slip..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-      </div>
-      <div id="search-results" class="space-y-3">
-       <p class="text-center text-gray-500 py-8">Ketik untuk mencari...</p>
-      </div>
-     </div>
-    </div>
-   </main><!-- Add Activity Modal -->
-   <div id="add-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center">
-    <div class="bg-white rounded-t-3xl w-full max-w-lg p-6 slide-up">
-     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg text-gray-800">Tambah Aktivitas</h3><button id="close-modal" class="p-2 hover:bg-gray-100 rounded-full">
-       <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-       </svg></button>
-     </div>
-     <form id="activity-form" class="space-y-4">
-      <div><label class="block text-sm font-medium text-gray-700 mb-1" for="activity-type">Tipe Aktivitas</label> <select id="activity-type" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"> <option value="slip">Slip</option> <option value="visitor">Visitor</option> <option value="speaker">Speaker</option> <option value="meeting">Meeting</option> </select>
-      </div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1" for="activity-title">Judul</label> <input type="text" id="activity-title" placeholder="Contoh: Presentasi Produk A" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-      </div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1" for="activity-value">Nilai TYFCB (Rp)</label> <input type="number" id="activity-value" placeholder="0" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-      </div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1" for="activity-notes">Catatan</label> <textarea id="activity-notes" rows="2" placeholder="Catatan tambahan..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"></textarea>
-      </div><button type="submit" id="submit-btn" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"> Simpan Aktivitas </button>
-     </form>
-    </div>
-   </div><!-- Bottom Navigation -->
-   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-40">
-    <div class="flex items-center justify-around max-w-lg mx-auto"><button class="nav-item active flex flex-col items-center p-2 rounded-xl transition-colors" data-tab="home">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg><span class="text-xs mt-1 font-medium">Home</span> </button> <button class="nav-item flex flex-col items-center p-2 rounded-xl text-gray-500 transition-colors" data-tab="slips">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg><span class="text-xs mt-1 font-medium">Slips</span> </button> <button class="nav-item flex flex-col items-center p-2 rounded-xl text-gray-500 transition-colors" data-tab="community">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg><span class="text-xs mt-1 font-medium">Community</span> </button> <button class="nav-item flex flex-col items-center p-2 rounded-xl text-gray-500 transition-colors" data-tab="visitors">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg><span class="text-xs mt-1 font-medium">Visitors</span> </button> <button class="nav-item flex flex-col items-center p-2 rounded-xl text-gray-500 transition-colors" data-tab="search">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg><span class="text-xs mt-1 font-medium">Search</span> </button>
-    </div>
-   </nav>
-  </div>
-  <script>
-    // Default configuration
-    const defaultConfig = {
-      user_name: 'Ahmad Budiman',
-      user_role: 'Business Builder',
-      target_tyfcb: '50000000',
-      background_color: '#f8fafc',
-      surface_color: '#ffffff',
-      text_color: '#1f2937',
-      primary_action: '#667eea',
-      secondary_action: '#6b7280'
-    };
-
-    let config = { ...defaultConfig };
-    let activities = [];
-    let currentRecordCount = 0;
-
-    // Format currency
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(value);
-    }
-
-    // Get initials from name
-    function getInitials(name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-
-    // Calculate TYFCB from activities
-    function calculateTYFCB() {
-      return activities.reduce((sum, act) => sum + (Number(act.value) || 0), 0);
-    }
-
-    // Update progress ring
-    function updateProgress() {
-      const achieved = calculateTYFCB();
-      const target = Number(config.target_tyfcb) || 50000000;
-      const percent = Math.min(Math.round((achieved / target) * 100), 100);
-      
-      const circle = document.getElementById('progress-circle');
-      const circumference = 251.2;
-      const offset = circumference - (percent / 100) * circumference;
-      circle.style.strokeDashoffset = offset;
-      
-      document.getElementById('progress-percent').textContent = percent + '%';
-      document.getElementById('tyfcb-achieved').textContent = formatCurrency(achieved);
-      document.getElementById('tyfcb-target').textContent = formatCurrency(target);
-    }
-
-    // Update stats
-    function updateStats() {
-      const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      
-      const weeklySlips = activities.filter(a => 
-        a.type === 'slip' && new Date(a.created_at) >= weekAgo
-      ).length;
-      
-      const monthlyVisitors = activities.filter(a => 
-        a.type === 'visitor'
-      ).length;
-      
-      const totalSpeakers = activities.filter(a => 
-        a.type === 'speaker'
-      ).length;
-      
-      document.getElementById('weekly-slips').textContent = weeklySlips || activities.filter(a => a.type === 'slip').length;
-      document.getElementById('monthly-visitors').textContent = monthlyVisitors || 48;
-      document.getElementById('total-speakers').textContent = totalSpeakers || 8;
-    }
-
-    // Render activities
-    function renderActivities() {
-      const container = document.getElementById('activity-list');
-      
-      if (activities.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-6 text-gray-500">
-            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            <p class="text-sm">Belum ada aktivitas</p>
-            <p class="text-xs">Klik "Tambah" untuk mencatat aktivitas baru</p>
-          </div>
-        `;
-        return;
-      }
-
-      const typeIcons = {
-        slip: '📄',
-        visitor: '👤',
-        speaker: '🎤',
-        meeting: '📅'
-      };
-
-      const typeColors = {
-        slip: 'bg-blue-100 text-blue-700',
-        visitor: 'bg-emerald-100 text-emerald-700',
-        speaker: 'bg-purple-100 text-purple-700',
-        meeting: 'bg-amber-100 text-amber-700'
-      };
-
-      container.innerHTML = activities
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 5)
-        .map(activity => `
-          <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors" data-id="${activity.__backendId}">
-            <div class="w-10 h-10 rounded-xl ${typeColors[activity.type] || 'bg-gray-100 text-gray-700'} flex items-center justify-center text-lg">
-              ${typeIcons[activity.type] || '📋'}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-semibold text-gray-800 truncate">${activity.title}</p>
-              <p class="text-xs text-gray-500">${new Date(activity.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-            </div>
-            <div class="text-right">
-              <p class="font-bold text-indigo-600 text-sm">${formatCurrency(activity.value || 0)}</p>
-              <button class="delete-btn text-xs text-red-500 hover:text-red-700" data-id="${activity.__backendId}">Hapus</button>
-            </div>
-          </div>
-        `).join('');
-
-      // Add delete event listeners
-      container.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          const id = btn.dataset.id;
-          const activity = activities.find(a => a.__backendId === id);
-          if (activity) {
-            btn.textContent = 'Menghapus...';
-            btn.disabled = true;
-            const result = await window.dataSdk.delete(activity);
-            if (!result.isOk) {
-              btn.textContent = 'Hapus';
-              btn.disabled = false;
-              showToast('Gagal menghapus aktivitas', 'error');
-            }
-          }
-        });
-      });
-    }
-
-    // Render slips
-    function renderSlips() {
-      const container = document.getElementById('slips-list');
-      const slips = activities.filter(a => a.type === 'slip');
-      
-      if (slips.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-6">Belum ada slip</p>';
-        return;
-      }
-
-      container.innerHTML = slips
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .map(slip => `
-          <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div class="flex items-start justify-between">
-              <div>
-                <p class="font-semibold text-gray-800">${slip.title}</p>
-                <p class="text-xs text-gray-600 mt-1">${new Date(slip.created_at).toLocaleDateString('id-ID')}</p>
-              </div>
-              <p class="font-bold text-blue-600">${formatCurrency(slip.value || 0)}</p>
-            </div>
-            ${slip.notes ? `<p class="text-sm text-gray-600 mt-2">${slip.notes}</p>` : ''}
-          </div>
-        `).join('');
-    }
-
-    // Render visitors
-    function renderVisitors() {
-      const container = document.getElementById('visitors-list');
-      const visitors = activities.filter(a => a.type === 'visitor');
-      
-      if (visitors.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-6">Belum ada visitor</p>';
-        return;
-      }
-
-      container.innerHTML = visitors
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .map(visitor => `
-          <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-            <div class="flex items-start justify-between">
-              <div>
-                <p class="font-semibold text-gray-800">${visitor.title}</p>
-                <p class="text-xs text-gray-600 mt-1">${new Date(visitor.created_at).toLocaleDateString('id-ID')}</p>
-              </div>
-              <p class="font-bold text-emerald-600">${formatCurrency(visitor.value || 0)}</p>
-            </div>
-            ${visitor.notes ? `<p class="text-sm text-gray-600 mt-2">${visitor.notes}</p>` : ''}
-          </div>
-        `).join('');
-    }
-
-    // Search function
-    function performSearch(query) {
-      const container = document.getElementById('search-results');
-      if (!query.trim()) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-8">Ketik untuk mencari...</p>';
-        return;
-      }
-
-      const results = activities.filter(a => 
-        a.title.toLowerCase().includes(query.toLowerCase()) ||
-        a.notes?.toLowerCase().includes(query.toLowerCase())
-      );
-
-      if (results.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-8">Tidak ada hasil ditemukan</p>';
-        return;
-      }
-
-      container.innerHTML = results
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .map(item => `
-          <div class="p-3 bg-gray-50 rounded-xl">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">${item.type}</span>
-              <p class="text-xs text-gray-600">${new Date(item.created_at).toLocaleDateString('id-ID')}</p>
-            </div>
-            <p class="font-semibold text-gray-800">${item.title}</p>
-            <p class="text-sm text-indigo-600 font-bold mt-1">${formatCurrency(item.value || 0)}</p>
-          </div>
-        `).join('');
-    }
-
-    // Show toast message
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      toast.className = `fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-white text-sm font-medium z-50 ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'} slide-up`;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    // Switch tabs
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-      if (tabName === 'slips') renderSlips();
-      if (tabName === 'visitors') renderVisitors();
-    }
-
-    // Data handler for SDK
-    const dataHandler = {
-      onDataChanged(data) {
-        activities = data;
-        currentRecordCount = data.length;
-        renderActivities();
-        updateProgress();
-        updateStats();
-      }
-    };
-
-    // Initialize Element SDK
-    async function initElementSdk() {
-      if (window.elementSdk) {
-        await window.elementSdk.init({
-          defaultConfig,
-          onConfigChange: async (newConfig) => {
-            config = { ...defaultConfig, ...newConfig };
-            
-            document.getElementById('display-name').textContent = config.user_name || defaultConfig.user_name;
-            document.getElementById('display-role').textContent = config.user_role || defaultConfig.user_role;
-            document.getElementById('user-avatar').textContent = getInitials(config.user_name || defaultConfig.user_name);
-            
-            updateProgress();
-          },
-          mapToCapabilities: (cfg) => ({
-            recolorables: [
-              {
-                get: () => cfg.background_color || defaultConfig.background_color,
-                set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
-              },
-              {
-                get: () => cfg.surface_color || defaultConfig.surface_color,
-                set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
-              },
-              {
-                get: () => cfg.text_color || defaultConfig.text_color,
-                set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
-              },
-              {
-                get: () => cfg.primary_action || defaultConfig.primary_action,
-                set: (v) => { cfg.primary_action = v; window.elementSdk.setConfig({ primary_action: v }); }
-              },
-              {
-                get: () => cfg.secondary_action || defaultConfig.secondary_action,
-                set: (v) => { cfg.secondary_action = v; window.elementSdk.setConfig({ secondary_action: v }); }
-              }
-            ],
-            borderables: [],
-            fontEditable: undefined,
-            fontSizeable: undefined
-          }),
-          mapToEditPanelValues: (cfg) => new Map([
-            ['user_name', cfg.user_name || defaultConfig.user_name],
-            ['user_role', cfg.user_role || defaultConfig.user_role],
-            ['target_tyfcb', cfg.target_tyfcb || defaultConfig.target_tyfcb]
-          ])
-        });
-      }
-    }
-
-    // Initialize Data SDK
-    async function initDataSdk() {
-      if (window.dataSdk) {
-        const result = await window.dataSdk.init(dataHandler);
-        if (!result.isOk) {
-          console.error('Failed to initialize Data SDK');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>BNI Chapter • KPI Champion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .bottom-nav-shadow { box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
+        .kpi-card-completed { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+        .kpi-card-pending { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+        .modal-overlay {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
         }
-      }
-    }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-    // DOM Elements
-    const notificationBtn = document.getElementById('notification-btn');
-    const notificationPanel = document.getElementById('notification-panel');
-    const closeNotif = document.getElementById('close-notif');
-    const addActivityBtn = document.getElementById('add-activity-btn');
-    const addModal = document.getElementById('add-modal');
-    const closeModal = document.getElementById('close-modal');
-    const activityForm = document.getElementById('activity-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const navItems = document.querySelectorAll('.nav-item');
-    const searchInput = document.getElementById('search-input');
+    <script type="text/babel">
+        // -------------------------------------------------------------------
+        // BNI CHAPTER KPI TRACKER - FIXED MODAL PROFILE
+        // -------------------------------------------------------------------
+        
+        // === CLEAR ALL OLD DATA - FRESH START ===
+        localStorage.clear();
+        
+        // === HELPER FUNCTIONS ===
+        function getWeekNumber(d) {
+            const date = new Date(d);
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            const week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
 
-    // Event Listeners
-    notificationBtn.addEventListener('click', () => {
-      notificationPanel.classList.toggle('hidden');
-    });
+        function getWeekRange() {
+            const today = new Date();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - today.getDay() + 1);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            return {
+                start: monday.toISOString().split('T')[0],
+                end: sunday.toISOString().split('T')[0],
+                monday: monday,
+                sunday: sunday,
+                weekNumber: getWeekNumber(monday)
+            };
+        }
 
-    closeNotif.addEventListener('click', () => {
-      notificationPanel.classList.add('hidden');
-    });
+        // ============= INITIAL DATA - FRESH =============
+        
+        // 1. SUPER ADMIN
+        const superAdmin = {
+            id: 1,
+            name: 'Andryaas Mamuaya',
+            businessName: 'Mamuaya Consulting',
+            businessDesc: 'Konsultan bisnis & digital transformation specialist',
+            socialLinkedin: 'https://linkedin.com/in/andryaas',
+            socialInstagram: 'https://instagram.com/andryaas',
+            phone: '+62 812-3456-7890',
+            email: 'superadmin@bni.com',
+            password: 'admin123',
+            role: 'super_admin',
+            badge: 'Super Admin',
+            chapter: 'Jakarta 1',
+            joinDate: '2025-01-15',
+            avatar: 'https://ui-avatars.com/api/?name=Andryaas+Mamuaya&background=2563eb&color=fff',
+            isApproved: true,
+            totalPoints: 2450,
+            weeklyAverage: 94
+        };
 
-    addActivityBtn.addEventListener('click', () => {
-      addModal.classList.remove('hidden');
-    });
+        // 2. MEMBERS - DENGAN DATA LENGKAP
+        const members = [
+            {
+                id: 2,
+                name: 'John Champion',
+                businessName: 'Champion Properties',
+                businessDesc: 'Property agent specialist - rumah, apartemen, kavling',
+                socialLinkedin: 'https://linkedin.com/in/johnchampion',
+                socialInstagram: 'https://instagram.com/johnchampion',
+                phone: '+62 812-3456-7891',
+                email: 'john@bni.com',
+                password: 'john123',
+                role: 'member',
+                badge: 'Champion',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-01-15',
+                avatar: 'https://ui-avatars.com/api/?name=John+Champion&background=16a34a&color=fff',
+                isApproved: true,
+                referredBy: 1,
+                totalPoints: 1240,
+                weeklyAverage: 82
+            },
+            {
+                id: 3,
+                name: 'Lisa Member',
+                businessName: 'Lisa Bakery',
+                businessDesc: 'Fresh baked goods, custom cakes & pastry',
+                socialLinkedin: 'https://linkedin.com/in/lisabakery',
+                socialInstagram: 'https://instagram.com/lisabakery',
+                phone: '+62 812-3456-7892',
+                email: 'lisa@bni.com',
+                password: 'lisa123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-01',
+                avatar: 'https://ui-avatars.com/api/?name=Lisa+Member&background=dc2626&color=fff',
+                isApproved: true,
+                referredBy: 2,
+                totalPoints: 560,
+                weeklyAverage: 70
+            },
+            {
+                id: 5,
+                name: 'Rudi Hartono',
+                businessName: 'Rudi Digital Marketing',
+                businessDesc: 'SEO, SEM, social media ads specialist',
+                socialLinkedin: 'https://linkedin.com/in/rudihartono',
+                socialInstagram: 'https://instagram.com/rudidigital',
+                phone: '+62 812-3456-7893',
+                email: 'rudi@bni.com',
+                password: 'rudi123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-10',
+                avatar: 'https://ui-avatars.com/api/?name=Rudi+Hartono&background=9333ea&color=fff',
+                isApproved: true,
+                referredBy: 1,
+                totalPoints: 320,
+                weeklyAverage: 45
+            },
+            {
+                id: 6,
+                name: 'Susi Susanti',
+                businessName: 'Susi Law Firm',
+                businessDesc: 'Legal consulting, corporate law, contract drafting',
+                socialLinkedin: 'https://linkedin.com/in/susilaw',
+                socialInstagram: 'https://instagram.com/susilawfirm',
+                phone: '+62 812-3456-7894',
+                email: 'susi@bni.com',
+                password: 'susi123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-15',
+                avatar: 'https://ui-avatars.com/api/?name=Susi+Susanti&background=e11d48&color=fff',
+                isApproved: true,
+                referredBy: 2,
+                totalPoints: 180,
+                weeklyAverage: 38
+            }
+        ];
 
-    closeModal.addEventListener('click', () => {
-      addModal.classList.add('hidden');
-    });
+        // 3. PENDING MEMBER
+        const pendingMembers = [
+            {
+                id: 4,
+                name: 'Budi Santoso',
+                businessName: 'Budi Digital',
+                businessDesc: 'Web development & IT solutions',
+                socialLinkedin: 'https://linkedin.com/in/budisantoso',
+                socialInstagram: 'https://instagram.com/budidigital',
+                phone: '+62 812-3456-7895',
+                email: 'budi@bni.com',
+                password: 'budi123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-15',
+                avatar: 'https://ui-avatars.com/api/?name=Budi+Santoso&background=6b7280&color=fff',
+                isApproved: false,
+                referredBy: 1,
+                totalPoints: 0,
+                weeklyAverage: 0
+            }
+        ];
 
-    addModal.addEventListener('click', (e) => {
-      if (e.target === addModal) {
-        addModal.classList.add('hidden');
-      }
-    });
+        // === GABUNGIN SEMUA USER ===
+        const allUsers = [superAdmin, ...members, ...pendingMembers];
+        
+        // === SAVE KE LOCALSTORAGE ===
+        localStorage.setItem('bni_users', JSON.stringify(allUsers));
 
-    activityForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (currentRecordCount >= 999) {
-        showToast('Batas maksimum 999 aktivitas tercapai. Hapus beberapa aktivitas terlebih dahulu.', 'error');
-        return;
-      }
+        // === INIT KPI DATA ===
+        const weekInfo = getWeekRange();
+        
+        const kpiData = [
+            // John's KPI - Current Week (100%)
+            {
+                id: 1,
+                userId: 2,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 1.5, points: 20, completed: true },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 2, points: 20, completed: true },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true }
+                ],
+                totalPoints: 100,
+                maxPoints: 100,
+                percentage: 100
+            },
+            // Lisa's KPI - Current Week (60%)
+            {
+                id: 2,
+                userId: 3,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 2, points: 20, completed: true },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true }
+                ],
+                totalPoints: 60,
+                maxPoints: 100,
+                percentage: 60
+            },
+            // Rudi's KPI - Current Week (40%)
+            {
+                id: 3,
+                userId: 5,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                ],
+                totalPoints: 40,
+                maxPoints: 100,
+                percentage: 40
+            },
+            // Susi's KPI - Current Week (20%)
+            {
+                id: 4,
+                userId: 6,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                ],
+                totalPoints: 20,
+                maxPoints: 100,
+                percentage: 20
+            }
+        ];
 
-      const type = document.getElementById('activity-type').value;
-      const title = document.getElementById('activity-title').value.trim();
-      const value = document.getElementById('activity-value').value;
-      const notes = document.getElementById('activity-notes').value.trim();
+        localStorage.setItem('bni_kpi', JSON.stringify(kpiData));
 
-      if (!title) {
-        showToast('Judul aktivitas harus diisi', 'error');
-        return;
-      }
+        // === PENDING APPROVALS ===
+        localStorage.setItem('bni_pending_approvals', JSON.stringify([
+            {
+                userId: 4,
+                name: 'Budi Santoso',
+                businessName: 'Budi Digital',
+                businessDesc: 'Web development & IT solutions',
+                email: 'budi@bni.com',
+                phone: '+62 812-3456-7895',
+                registeredAt: '2026-02-15',
+                referredBy: 'ANDY001'
+            }
+        ]));
 
-      submitBtn.textContent = 'Menyimpan...';
-      submitBtn.disabled = true;
+        // ============= GLOBAL STATE =============
+        const AppState = {
+            currentUser: null,
+            
+            // ============= AUTH =============
+            login: function(email, password) {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    if (!user.isApproved) {
+                        return { success: false, message: 'Akun Anda belum disetujui Super Admin' };
+                    }
+                    
+                    const { password, ...userWithoutPassword } = user;
+                    this.currentUser = userWithoutPassword;
+                    localStorage.setItem('bni_currentUser', JSON.stringify(userWithoutPassword));
+                    return { success: true, user: userWithoutPassword };
+                }
+                
+                return { success: false, message: 'Email atau password salah' };
+            },
+            
+            logout: function() {
+                this.currentUser = null;
+                localStorage.removeItem('bni_currentUser');
+            },
+            
+            // ============= REGISTER =============
+            register: function(formData) {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                
+                if (users.find(u => u.email === formData.email)) {
+                    return { success: false, message: 'Email sudah terdaftar' };
+                }
 
-      const newActivity = {
-        id: Date.now().toString(),
-        type,
-        title,
-        value: Number(value) || 0,
-        date: new Date().toISOString().split('T')[0],
-        status: 'completed',
-        notes,
-        created_at: new Date().toISOString()
-      };
+                const newUser = {
+                    id: users.length + 1,
+                    name: formData.name,
+                    businessName: formData.businessName,
+                    businessDesc: formData.businessDesc || '',
+                    socialLinkedin: formData.socialLinkedin || '',
+                    socialInstagram: formData.socialInstagram || '',
+                    phone: formData.phone,
+                    email: formData.email,
+                    password: formData.password,
+                    role: 'member',
+                    badge: 'Member',
+                    chapter: 'Jakarta 1',
+                    joinDate: new Date().toISOString().split('T')[0],
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=6b7280&color=fff`,
+                    isApproved: false,
+                    referredBy: formData.referralCode || null,
+                    totalPoints: 0,
+                    weeklyAverage: 0
+                };
 
-      const result = await window.dataSdk.create(newActivity);
-      
-      submitBtn.textContent = 'Simpan Aktivitas';
-      submitBtn.disabled = false;
+                users.push(newUser);
+                localStorage.setItem('bni_users', JSON.stringify(users));
+                
+                const pending = JSON.parse(localStorage.getItem('bni_pending_approvals')) || [];
+                pending.push({
+                    userId: newUser.id,
+                    name: newUser.name,
+                    businessName: newUser.businessName,
+                    businessDesc: newUser.businessDesc,
+                    email: newUser.email,
+                    phone: newUser.phone,
+                    registeredAt: newUser.joinDate,
+                    referredBy: newUser.referredBy
+                });
+                localStorage.setItem('bni_pending_approvals', JSON.stringify(pending));
+                
+                return { success: true, message: 'Registrasi berhasil! Menunggu persetujuan Super Admin.' };
+            },
+            
+            // ============= MEMBER PROFILE =============
+            getMemberById: function(userId) {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                const user = users.find(u => u.id === userId);
+                if (user) {
+                    const { password, ...userWithoutPassword } = user;
+                    return userWithoutPassword;
+                }
+                return null;
+            },
+            
+            // ============= SUPER ADMIN FUNCTIONS =============
+            getPendingApprovals: function() {
+                return JSON.parse(localStorage.getItem('bni_pending_approvals')) || [];
+            },
+            
+            approveMember: function(userId) {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                const pending = JSON.parse(localStorage.getItem('bni_pending_approvals')) || [];
+                
+                const userIndex = users.findIndex(u => u.id === userId);
+                if (userIndex > -1) {
+                    users[userIndex].isApproved = true;
+                    users[userIndex].badge = 'Member';
+                    localStorage.setItem('bni_users', JSON.stringify(users));
+                    
+                    const filteredPending = pending.filter(p => p.userId !== userId);
+                    localStorage.setItem('bni_pending_approvals', JSON.stringify(filteredPending));
+                    
+                    return true;
+                }
+                return false;
+            },
+            
+            rejectMember: function(userId) {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                const pending = JSON.parse(localStorage.getItem('bni_pending_approvals')) || [];
+                
+                const filteredUsers = users.filter(u => u.id !== userId);
+                localStorage.setItem('bni_users', JSON.stringify(filteredUsers));
+                
+                const filteredPending = pending.filter(p => p.userId !== userId);
+                localStorage.setItem('bni_pending_approvals', JSON.stringify(filteredPending));
+                
+                return true;
+            },
+            
+            getAllMembers: function() {
+                const users = JSON.parse(localStorage.getItem('bni_users')) || [];
+                return users.filter(u => u.role === 'member');
+            },
+            
+            getChapterSummary: function() {
+                const members = this.getAllMembers().filter(m => m.isApproved);
+                const kpiData = JSON.parse(localStorage.getItem('bni_kpi')) || [];
+                const currentWeek = getWeekRange().weekNumber;
+                
+                const currentWeekKPI = kpiData.filter(k => k.weekNumber === currentWeek);
+                
+                const totalMembers = members.length;
+                const totalPoints = members.reduce((sum, m) => sum + (m.totalPoints || 0), 0);
+                const avgPoints = totalMembers > 0 ? Math.round(totalPoints / totalMembers) : 0;
+                
+                const membersWithKPI = currentWeekKPI.length;
+                const membersCompleteKPI = currentWeekKPI.filter(k => k.percentage === 100).length;
+                const completionRate = membersWithKPI > 0 ? Math.round((membersCompleteKPI / membersWithKPI) * 100) : 0;
+                
+                return {
+                    totalMembers,
+                    pendingMembers: this.getAllMembers().filter(m => !m.isApproved).length,
+                    totalPoints,
+                    avgPoints,
+                    completionRate,
+                    membersWithKPI,
+                    membersCompleteKPI
+                };
+            },
+            
+            // ============= KPI FUNCTIONS =============
+            getCurrentWeekKPI: function(userId) {
+                const kpiData = JSON.parse(localStorage.getItem('bni_kpi')) || [];
+                const currentWeek = getWeekRange().weekNumber;
+                const currentYear = new Date().getFullYear();
+                
+                let weekKPI = kpiData.find(k => k.userId === userId && k.weekNumber === currentWeek && k.year === currentYear);
+                
+                if (!weekKPI) {
+                    weekKPI = {
+                        id: kpiData.length + 1,
+                        userId: userId,
+                        weekStart: getWeekRange().start,
+                        weekNumber: currentWeek,
+                        year: currentYear,
+                        kpi: [
+                            { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                            { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                            { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                            { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                            { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                        ],
+                        totalPoints: 0,
+                        maxPoints: 100,
+                        percentage: 0
+                    };
+                    
+                    kpiData.push(weekKPI);
+                    localStorage.setItem('bni_kpi', JSON.stringify(kpiData));
+                }
+                
+                weekKPI.totalPoints = weekKPI.kpi.reduce((sum, k) => sum + (k.completed ? k.points : 0), 0);
+                weekKPI.percentage = Math.round((weekKPI.totalPoints / weekKPI.maxPoints) * 100);
+                
+                return weekKPI;
+            },
+            
+            updateKPI: function(userId, kpiId, value, type) {
+                const kpiData = JSON.parse(localStorage.getItem('bni_kpi')) || [];
+                const currentWeek = getWeekRange().weekNumber;
+                const currentYear = new Date().getFullYear();
+                
+                const weekIndex = kpiData.findIndex(k => k.userId === userId && k.weekNumber === currentWeek && k.year === currentYear);
+                
+                if (weekIndex > -1) {
+                    const kpiItem = kpiData[weekIndex].kpi.find(k => k.id === kpiId);
+                    if (kpiItem) {
+                        if (type === 'hours') {
+                            kpiItem.achievedHours = value;
+                            kpiItem.completed = kpiItem.achievedHours >= kpiItem.targetHours;
+                        } else if (type === 'count') {
+                            kpiItem.achievedCount = value;
+                            kpiItem.completed = kpiItem.achievedCount >= kpiItem.targetCount;
+                        }
+                        
+                        kpiData[weekIndex].totalPoints = kpiData[weekIndex].kpi.reduce((sum, k) => sum + (k.completed ? k.points : 0), 0);
+                        kpiData[weekIndex].percentage = Math.round((kpiData[weekIndex].totalPoints / kpiData[weekIndex].maxPoints) * 100);
+                        
+                        localStorage.setItem('bni_kpi', JSON.stringify(kpiData));
+                        return kpiData[weekIndex];
+                    }
+                }
+                return null;
+            },
+            
+            getMemberKPISummary: function(userId) {
+                const kpiData = JSON.parse(localStorage.getItem('bni_kpi')) || [];
+                const userKPI = kpiData.filter(k => k.userId === userId);
+                
+                const recent = userKPI.sort((a, b) => b.weekNumber - a.weekNumber).slice(0, 4);
+                const avgPoints = userKPI.length > 0 
+                    ? Math.round(userKPI.reduce((sum, k) => sum + k.totalPoints, 0) / userKPI.length) 
+                    : 0;
+                
+                return {
+                    recent,
+                    avgPoints,
+                    totalWeeks: userKPI.length,
+                    totalPoints: userKPI.reduce((sum, k) => sum + k.totalPoints, 0)
+                };
+            },
+            
+            getAllMembersKPI: function() {
+                const members = this.getAllMembers().filter(m => m.isApproved);
+                const kpiData = JSON.parse(localStorage.getItem('bni_kpi')) || [];
+                const currentWeek = getWeekRange().weekNumber;
+                
+                return members.map(member => {
+                    const weekKPI = kpiData.find(k => k.userId === member.id && k.weekNumber === currentWeek);
+                    return {
+                        ...member,
+                        currentWeekPoints: weekKPI?.totalPoints || 0,
+                        currentWeekPercentage: weekKPI?.percentage || 0,
+                        kpiCompleted: weekKPI?.kpi?.filter(k => k.completed).length || 0
+                    };
+                }).sort((a, b) => b.currentWeekPoints - a.currentWeekPoints);
+            }
+        };
 
-      if (result.isOk) {
-        activityForm.reset();
-        addModal.classList.add('hidden');
-        showToast('Aktivitas berhasil ditambahkan!');
-      } else {
-        showToast('Gagal menyimpan aktivitas', 'error');
-      }
-    });
+        // ==================== COMPONENTS ====================
+        const Button = ({ children, onClick, variant = 'primary', className = '' }) => {
+            const base = 'px-4 py-2 rounded-lg font-semibold transition-all duration-200';
+            const variants = {
+                primary: 'bg-blue-600 text-white hover:bg-blue-700',
+                secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
+                outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50',
+                success: 'bg-green-600 text-white hover:bg-green-700',
+                danger: 'bg-red-600 text-white hover:bg-red-700'
+            };
+            return <button className={`${base} ${variants[variant]} ${className}`} onClick={onClick}>{children}</button>;
+        };
 
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const tabName = item.dataset.tab;
-        switchTab(tabName);
-      });
-    });
+        const Card = ({ children, className = '' }) => (
+            <div className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 ${className}`}>{children}</div>
+        );
 
-    searchInput.addEventListener('input', (e) => {
-      performSearch(e.target.value);
-    });
+        // ==================== MODAL PROFIL MEMBER - FIXED ====================
+        const MemberProfileModal = ({ member, isOpen, onClose }) => {
+            if (!isOpen || !member) return null;
 
-    // Initialize app
-    async function init() {
-      await initElementSdk();
-      await initDataSdk();
-      updateProgress();
-      updateStats();
-    }
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                            <div className="flex items-center text-white">
+                                <i className="fas fa-id-card mr-3 text-xl"></i>
+                                <h2 className="text-xl font-bold">Profil Member</h2>
+                            </div>
+                            <button onClick={onClose} className="text-white hover:text-gray-200 transition">
+                                <i className="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="p-6">
+                            {/* Avatar & Nama */}
+                            <div className="flex flex-col items-center mb-6">
+                                <img src={member.avatar} alt={member.name} className="w-28 h-28 rounded-full border-4 border-blue-100 shadow-lg mb-4" />
+                                <h3 className="text-2xl font-bold text-gray-900">{member.name}</h3>
+                                <div className="flex items-center mt-2">
+                                    <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${
+                                        member.badge === 'Super Admin' ? 'bg-purple-100 text-purple-800' :
+                                        member.badge === 'Champion' ? 'bg-yellow-100 text-yellow-800' : 
+                                        'bg-blue-100 text-blue-800'
+                                    }`}>
+                                        {member.badge}
+                                    </span>
+                                    <span className="ml-3 text-sm text-gray-600">
+                                        <i className="fas fa-calendar-alt mr-1"></i>Join {member.joinDate}
+                                    </span>
+                                </div>
+                            </div>
 
-    init();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc9758b26569fa1',t:'MTc3MDg3MTc2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+                            {/* Informasi Bisnis */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mb-6">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i className="fas fa-briefcase mr-2 text-blue-600"></i>
+                                    Informasi Bisnis
+                                </h4>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                                        <span className="text-gray-700 font-medium">Nama Bisnis</span>
+                                        <span className="font-semibold text-gray-900">{member.businessName}</span>
+                                    </div>
+                                    {member.businessDesc && (
+                                        <div className="py-2 border-b border-blue-100">
+                                            <span className="text-gray-700 font-medium block mb-1">Deskripsi</span>
+                                            <p className="text-gray-800 bg-white p-3 rounded-lg">{member.businessDesc}</p>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between items-center py-2">
+                                        <span className="text-gray-700 font-medium">Chapter</span>
+                                        <span className="font-semibold text-gray-900">{member.chapter}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Kontak & Sosial Media */}
+                            <div className="bg-gray-50 p-5 rounded-xl mb-6">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i className="fas fa-address-book mr-2 text-blue-600"></i>
+                                    Kontak & Sosial Media
+                                </h4>
+                                <div className="space-y-3">
+                                    <div className="flex items-center py-2 border-b border-gray-200">
+                                        <i className="fas fa-envelope text-gray-500 w-6"></i>
+                                        <span className="text-gray-700 ml-2">Email:</span>
+                                        <a href={`mailto:${member.email}`} className="ml-auto font-medium text-blue-600 hover:underline">
+                                            {member.email}
+                                        </a>
+                                    </div>
+                                    <div className="flex items-center py-2 border-b border-gray-200">
+                                        <i className="fas fa-phone text-gray-500 w-6"></i>
+                                        <span className="text-gray-700 ml-2">No. HP:</span>
+                                        <a href={`tel:${member.phone}`} className="ml-auto font-medium text-gray-900">
+                                            {member.phone}
+                                        </a>
+                                    </div>
+                                    {member.socialLinkedin && (
+                                        <div className="flex items-center py-2 border-b border-gray-200">
+                                            <i className="fab fa-linkedin text-blue-700 w-6"></i>
+                                            <span className="text-gray-700 ml-2">LinkedIn:</span>
+                                            <a href={member.socialLinkedin} target="_blank" className="ml-auto font-medium text-blue-600 hover:underline truncate">
+                                                {member.socialLinkedin.replace('https://', '')}
+                                            </a>
+                                        </div>
+                                    )}
+                                    {member.socialInstagram && (
+                                        <div className="flex items-center py-2">
+                                            <i className="fab fa-instagram text-pink-600 w-6"></i>
+                                            <span className="text-gray-700 ml-2">Instagram:</span>
+                                            <a href={member.socialInstagram} target="_blank" className="ml-auto font-medium text-blue-600 hover:underline truncate">
+                                                {member.socialInstagram.replace('https://', '')}
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Statistik KPI */}
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-xl">
+                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i className="fas fa-chart-line mr-2 text-purple-600"></i>
+                                    Statistik KPI
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-white p-4 rounded-lg text-center">
+                                        <p className="text-sm text-gray-600 mb-1">Total Points</p>
+                                        <p className="text-2xl font-bold text-purple-600">{member.totalPoints || 0}</p>
+                                    </div>
+                                    <div className="bg-white p-4 rounded-lg text-center">
+                                        <p className="text-sm text-gray-600 mb-1">Rata-rata</p>
+                                        <p className="text-2xl font-bold text-blue-600">{member.weeklyAverage || 0}/week</p>
+                                    </div>
+                                </div>
+                                {member.referredBy && (
+                                    <div className="mt-4 text-sm text-gray-600 text-center">
+                                        <i className="fas fa-user-plus mr-1"></i>
+                                        Direfer oleh: Member #{member.referredBy}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end">
+                            <Button variant="secondary" onClick={onClose}>
+                                <i className="fas fa-times mr-2"></i>Tutup
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const KPICard = ({ kpi, onUpdate, disabled = false }) => {
+            const getIcon = (id) => {
+                switch(id) {
+                    case 'meeting': return 'fas fa-users';
+                    case 'ononone': return 'fas fa-handshake';
+                    case 'visitor': return 'fas fa-user-plus';
+                    case 'learning': return 'fas fa-graduation-cap';
+                    case 'referral': return 'fas fa-share-alt';
+                    default: return 'fas fa-tasks';
+                }
+            };
+
+            return (
+                <div className={`rounded-xl p-4 ${kpi.completed ? 'kpi-card-completed' : 'kpi-card-pending'} border ${kpi.completed ? 'border-green-200' : 'border-orange-200'}`}>
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${kpi.completed ? 'bg-green-600' : 'bg-orange-500'}`}>
+                                <i className={`${getIcon(kpi.id)} text-white text-lg`}></i>
+                            </div>
+                            <div className="ml-3">
+                                <h3 className="font-semibold text-gray-900">{kpi.name}</h3>
+                                <p className="text-xs text-gray-600">Target: {kpi.target}</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className={`text-sm font-bold ${kpi.completed ? 'text-green-600' : 'text-orange-600'}`}>
+                                {kpi.completed ? '✓ Selesai' : 'Pending'}
+                            </span>
+                            <p className="text-xs text-gray-500 mt-1">{kpi.points} point</p>
+                        </div>
+                    </div>
+                    
+                    {kpi.targetHours && (
+                        <div className="mt-3">
+                            <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium">{kpi.achievedHours} / {kpi.targetHours} jam</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max={kpi.targetHours * 2} 
+                                    step="0.5"
+                                    value={kpi.achievedHours}
+                                    onChange={(e) => onUpdate(kpi.id, parseFloat(e.target.value), 'hours')}
+                                    disabled={disabled}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
+                                />
+                                <span className="text-sm font-medium w-12 text-blue-600">
+                                    {(kpi.achievedHours / kpi.targetHours * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {kpi.targetCount && (
+                        <div className="mt-3">
+                            <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium">{kpi.achievedCount} / {kpi.targetCount} org</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max={kpi.targetCount * 2}
+                                    step="1"
+                                    value={kpi.achievedCount}
+                                    onChange={(e) => onUpdate(kpi.id, parseInt(e.target.value), 'count')}
+                                    disabled={disabled}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
+                                />
+                                <span className="text-sm font-medium w-12 text-blue-600">
+                                    {(kpi.achievedCount / kpi.targetCount * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ==================== LOGIN PAGE ====================
+        const Login = ({ onLogin }) => {
+            const [email, setEmail] = React.useState('');
+            const [password, setPassword] = React.useState('');
+            const [error, setError] = React.useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const result = onLogin(email, password);
+                if (!result.success) {
+                    setError(result.message);
+                }
+            };
+
+            const fillSuperAdmin = () => {
+                setEmail('superadmin@bni.com');
+                setPassword('admin123');
+                setError('');
+            };
+            
+            const fillJohn = () => {
+                setEmail('john@bni.com');
+                setPassword('john123');
+                setError('');
+            };
+
+            const fillLisa = () => {
+                setEmail('lisa@bni.com');
+                setPassword('lisa123');
+                setError('');
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+                    <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+                                BNI Chapter KPI
+                            </h1>
+                            <p className="text-gray-600 mt-2">Champion Performance Dashboard</p>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {error && (
+                                <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm border border-red-200">
+                                    <i className="fas fa-exclamation-circle mr-2"></i>{error}
+                                </div>
+                            )}
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input 
+                                    type="email" 
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                    placeholder="email@bni.com" 
+                                    required 
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                                <input 
+                                    type="password" 
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                    placeholder="••••••••" 
+                                    required 
+                                />
+                            </div>
+                            
+                            <Button variant="primary" className="w-full py-3">Sign In</Button>
+                            
+                            <p className="text-center text-sm text-gray-600">
+                                Belum punya akun?{' '}
+                                <a href="#/register" className="text-blue-600 font-medium hover:underline">Register disini</a>
+                            </p>
+                        </form>
+
+                        {/* DEMO ACCESS */}
+                        <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <p className="text-sm font-medium text-gray-800 mb-3 flex items-center">
+                                <i className="fas fa-robot mr-2 text-blue-600"></i>
+                                🔐 Demo Access - Klik langsung login:
+                            </p>
+                            <div className="space-y-2">
+                                <button 
+                                    onClick={fillSuperAdmin}
+                                    className="w-full flex items-center justify-between p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition border border-purple-200"
+                                >
+                                    <div className="flex items-center">
+                                        <i className="fas fa-crown text-purple-600 mr-3"></i>
+                                        <span className="font-medium">Super Admin</span>
+                                    </div>
+                                    <span className="text-sm text-gray-600">superadmin@bni.com / admin123</span>
+                                </button>
+                                
+                                <button 
+                                    onClick={fillJohn}
+                                    className="w-full flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition border border-yellow-200"
+                                >
+                                    <div className="flex items-center">
+                                        <i className="fas fa-trophy text-yellow-600 mr-3"></i>
+                                        <span className="font-medium">Champion Member</span>
+                                    </div>
+                                    <span className="text-sm text-gray-600">john@bni.com / john123</span>
+                                </button>
+                                
+                                <button 
+                                    onClick={fillLisa}
+                                    className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition border border-blue-200"
+                                >
+                                    <div className="flex items-center">
+                                        <i className="fas fa-user text-blue-600 mr-3"></i>
+                                        <span className="font-medium">Regular Member</span>
+                                    </div>
+                                    <span className="text-sm text-gray-600">lisa@bni.com / lisa123</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== REGISTER PAGE ====================
+        const Register = ({ onRegister }) => {
+            const [formData, setFormData] = React.useState({
+                name: '',
+                businessName: '',
+                businessDesc: '',
+                socialLinkedin: '',
+                socialInstagram: '',
+                phone: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+                referralCode: ''
+            });
+            const [error, setError] = React.useState('');
+            const [success, setSuccess] = React.useState('');
+
+            const handleChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                
+                if (formData.password !== formData.confirmPassword) {
+                    setError('Password tidak cocok');
+                    return;
+                }
+                
+                if (formData.password.length < 6) {
+                    setError('Password minimal 6 karakter');
+                    return;
+                }
+
+                const result = onRegister(formData);
+                if (result.success) {
+                    setSuccess(result.message);
+                    setFormData({
+                        name: '', businessName: '', businessDesc: '', socialLinkedin: '', socialInstagram: '',
+                        phone: '', email: '', password: '', confirmPassword: '', referralCode: ''
+                    });
+                } else {
+                    setError(result.message);
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                    <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-2xl font-bold text-gray-900">Registrasi Member BNI Chapter</h1>
+                            <p className="text-gray-600 mt-2">Isi data lengkap untuk bergabung</p>
+                        </div>
+                        
+                        {error && (
+                            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+                                <i className="fas fa-exclamation-circle mr-2"></i>{error}
+                            </div>
+                        )}
+                        
+                        {success && (
+                            <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6 border border-green-200">
+                                <i className="fas fa-check-circle mr-2"></i>{success}
+                                <div className="mt-3">
+                                    <a href="#/login" className="text-green-800 font-medium underline">Kembali ke Login</a>
+                                </div>
+                            </div>
+                        )}
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+                                        <input type="text" name="name" value={formData.name} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="John Doe" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nama Bisnis *</label>
+                                        <input type="text" name="businessName" value={formData.businessName} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="PT. Maju Jaya" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Bisnis</label>
+                                        <textarea name="businessDesc" value={formData.businessDesc} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Ceritakan tentang bisnis Anda..."
+                                            rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+                                        <input type="url" name="socialLinkedin" value={formData.socialLinkedin} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="https://linkedin.com/in/username" />
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+                                        <input type="url" name="socialInstagram" value={formData.socialInstagram} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="https://instagram.com/username" />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">No. HP *</label>
+                                        <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="+62 812-3456-7890" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                        <input type="email" name="email" value={formData.email} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="email@example.com" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                                        <input type="password" name="password" value={formData.password} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Minimal 6 karakter" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password *</label>
+                                        <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="••••••••" required />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Kode Referral (Optional)</label>
+                                        <input type="text" name="referralCode" value={formData.referralCode} onChange={handleChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="Contoh: JOHN123" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <p className="text-sm text-blue-800">
+                                    <i className="fas fa-info-circle mr-2"></i>
+                                    Setelah registrasi, akun Anda akan diverifikasi oleh Super Admin. Maksimal 1x24 jam.
+                                </p>
+                            </div>
+                            
+                            <div className="flex space-x-4">
+                                <Button variant="primary" type="submit" className="flex-1">Daftar Sekarang</Button>
+                                <Button variant="secondary" onClick={() => window.location.hash = '/login'} className="px-6">
+                                    Batal
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== MEMBER DASHBOARD ====================
+        const MemberDashboard = ({ currentUser, state }) => {
+            const [refresh, setRefresh] = React.useState(0);
+            const weekKPI = state.getCurrentWeekKPI(currentUser?.id);
+            const kpiSummary = state.getMemberKPISummary(currentUser?.id);
+            const weekInfo = getWeekRange();
+            const allMembersKPI = state.getAllMembersKPI();
+            
+            const memberRank = allMembersKPI.findIndex(m => m.id === currentUser.id) + 1;
+            
+            const handleUpdateKPI = (kpiId, value, type) => {
+                state.updateKPI(currentUser.id, kpiId, value, type);
+                setRefresh(prev => prev + 1);
+            };
+
+            const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 pb-24 pt-4">
+                    {/* Header Profile */}
+                    <div className="flex items-center space-x-4 mb-6">
+                        <img src={currentUser?.avatar} alt={currentUser?.name} className="w-16 h-16 rounded-full border-4 border-white shadow-lg" />
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">{currentUser?.name}</h1>
+                            <div className="flex items-center mt-1">
+                                <span className={`text-xs px-3 py-1 rounded-full ${
+                                    currentUser?.badge === 'Champion' 
+                                        ? 'bg-yellow-100 text-yellow-800' 
+                                        : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                    {currentUser?.badge}
+                                </span>
+                                <span className="text-sm text-gray-600 ml-3">
+                                    <i className="fas fa-building mr-1"></i>{currentUser?.businessName}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Business Contact Card */}
+                    <Card className="mb-6 bg-gradient-to-r from-gray-50 to-white">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-xs text-gray-500">Email</p>
+                                <p className="font-medium text-sm">{currentUser?.email}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500">Phone</p>
+                                <p className="font-medium text-sm">{currentUser?.phone}</p>
+                            </div>
+                            {currentUser?.socialLinkedin && (
+                                <div>
+                                    <p className="text-xs text-gray-500">LinkedIn</p>
+                                    <a href={currentUser.socialLinkedin} target="_blank" className="font-medium text-sm text-blue-600 hover:underline">
+                                        <i className="fab fa-linkedin mr-1"></i>Profile
+                                    </a>
+                                </div>
+                            )}
+                            {currentUser?.socialInstagram && (
+                                <div>
+                                    <p className="text-xs text-gray-500">Instagram</p>
+                                    <a href={currentUser.socialInstagram} target="_blank" className="font-medium text-sm text-blue-600 hover:underline">
+                                        <i className="fab fa-instagram mr-1"></i>Profile
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </Card>
+
+                    {/* Week Info & Rank */}
+                    <div className="flex justify-between items-center mb-6">
+                        <div>
+                            <p className="text-sm text-gray-600">
+                                <i className="fas fa-calendar-alt mr-2"></i>Minggu ini: {weekRange}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">Week #{weekInfo.weekNumber}</p>
+                        </div>
+                        <div className="bg-yellow-100 px-4 py-2 rounded-full">
+                            <span className="font-semibold text-yellow-800">
+                                <i className="fas fa-trophy mr-1"></i>Rank #{memberRank}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Progress Overview */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
+                            <p className="text-sm text-gray-600">Total Points</p>
+                            <p className="text-2xl font-bold text-blue-600">{kpiSummary.totalPoints}</p>
+                            <p className="text-xs text-gray-500 mt-1">{kpiSummary.totalWeeks} minggu</p>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-green-50 to-emerald-50">
+                            <p className="text-sm text-gray-600">Rata-rata</p>
+                            <p className="text-2xl font-bold text-green-600">{kpiSummary.avgPoints}/week</p>
+                        </Card>
+                    </div>
+
+                    {/* Current Week KPI */}
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold text-gray-900">
+                                <i className="fas fa-tasks mr-2 text-blue-600"></i>
+                                KPI Minggu Ini
+                            </h2>
+                            <div className="bg-blue-100 px-4 py-2 rounded-full">
+                                <span className="font-bold text-blue-800">{weekKPI?.totalPoints}/100 pts</span>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {weekKPI?.kpi.map(kpi => (
+                                <KPICard key={kpi.id} kpi={kpi} onUpdate={handleUpdateKPI} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Chapter Summary */}
+                    <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 mb-6">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                            <i className="fas fa-users mr-2 text-purple-600"></i>
+                            Chapter Summary
+                        </h3>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p className="text-2xl font-bold text-purple-600">{allMembersKPI.length}</p>
+                                <p className="text-xs text-gray-600">Total Member</p>
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-blue-600">
+                                    {allMembersKPI.filter(m => m.currentWeekPercentage >= 80).length}
+                                </p>
+                                <p className="text-xs text-gray-600">On Track</p>
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-green-600">
+                                    {allMembersKPI.filter(m => m.currentWeekPercentage === 100).length}
+                                </p>
+                                <p className="text-xs text-gray-600">100% KPI</p>
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Leaderboard Preview - BISA DI KLIK - FIXED */}
+                    <div>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-semibold text-gray-900">Leaderboard Minggu Ini</h3>
+                            <a href="#/leaderboard" className="text-sm text-blue-600">Lihat Semua →</a>
+                        </div>
+                        <div className="space-y-3">
+                            {allMembersKPI.slice(0, 3).map((member, idx) => (
+                                <MemberLeaderboardCard 
+                                    key={member.id} 
+                                    member={member} 
+                                    rank={idx + 1} 
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== LEADERBOARD CARD DENGAN KLIK - FIXED ====================
+        const MemberLeaderboardCard = ({ member, rank }) => {
+            const [showProfile, setShowProfile] = React.useState(false);
+            
+            return (
+                <>
+                    <Card 
+                        className={`flex items-center justify-between py-3 cursor-pointer hover:shadow-lg transition-all ${
+                            rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-white border-l-4 border-yellow-400' :
+                            rank === 2 ? 'bg-gradient-to-r from-gray-50 to-white border-l-4 border-gray-400' :
+                            rank === 3 ? 'bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-400' : ''
+                        }`}
+                        onClick={() => setShowProfile(true)}
+                    >
+                        <div className="flex items-center">
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3
+                                ${rank === 1 ? 'bg-yellow-400 text-white' : 
+                                  rank === 2 ? 'bg-gray-400 text-white' : 
+                                  rank === 3 ? 'bg-orange-400 text-white' : 
+                                  'bg-gray-200 text-gray-700'}`}>
+                                #{rank}
+                            </span>
+                            <img src={member.avatar} className="w-10 h-10 rounded-full mr-3" />
+                            <div>
+                                <p className="font-semibold text-gray-900">{member.name}</p>
+                                <p className="text-xs text-gray-600">{member.businessName}</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xl font-bold text-blue-600">{member.currentWeekPoints}</p>
+                            <p className="text-xs text-gray-500">{member.currentWeekPercentage}% KPI</p>
+                        </div>
+                    </Card>
+
+                    {/* Modal Profile Member - LANGSUNG PAKAI MEMBER, GA PAKE GETMEMBERBYID */}
+                    <MemberProfileModal 
+                        member={member}
+                        isOpen={showProfile}
+                        onClose={() => setShowProfile(false)}
+                    />
+                </>
+            );
+        };
+
+        // ==================== SUPER ADMIN DASHBOARD ====================
+        const SuperAdminDashboard = ({ currentUser, state }) => {
+            const [refresh, setRefresh] = React.useState(0);
+            const pendingApprovals = state.getPendingApprovals();
+            const allMembers = state.getAllMembers();
+            const chapterSummary = state.getChapterSummary();
+            const allMembersKPI = state.getAllMembersKPI();
+            const weekInfo = getWeekRange();
+
+            const handleApprove = (userId) => {
+                state.approveMember(userId);
+                setRefresh(prev => prev + 1);
+            };
+
+            const handleReject = (userId) => {
+                if (confirm('Yakin ingin menolak member ini?')) {
+                    state.rejectMember(userId);
+                    setRefresh(prev => prev + 1);
+                }
+            };
+
+            const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 pb-24 pt-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">Super Admin Dashboard</h1>
+                            <p className="text-sm text-gray-600 mt-1">
+                                <i className="fas fa-calendar mr-2"></i>Minggu {weekInfo.weekNumber}: {weekRange}
+                            </p>
+                        </div>
+                        <div className="bg-purple-100 px-4 py-2 rounded-full">
+                            <i className="fas fa-crown text-purple-600 mr-2"></i>
+                            <span className="font-semibold text-purple-800">Super Admin</span>
+                        </div>
+                    </div>
+
+                    {/* Chapter Stats */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
+                            <p className="text-xs text-gray-600">Total Member</p>
+                            <p className="text-2xl font-bold text-blue-600">{chapterSummary.totalMembers}</p>
+                            <p className="text-xs text-gray-500 mt-1">Aktif: {chapterSummary.totalMembers}</p>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50">
+                            <p className="text-xs text-gray-600">Pending</p>
+                            <p className="text-2xl font-bold text-yellow-600">{pendingApprovals.length}</p>
+                            <p className="text-xs text-gray-500 mt-1">Menunggu approval</p>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-green-50 to-emerald-50">
+                            <p className="text-xs text-gray-600">Total Points</p>
+                            <p className="text-2xl font-bold text-green-600">{chapterSummary.totalPoints}</p>
+                            <p className="text-xs text-gray-500 mt-1">Rata2: {chapterSummary.avgPoints}</p>
+                        </Card>
+                        <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
+                            <p className="text-xs text-gray-600">Completion</p>
+                            <p className="text-2xl font-bold text-purple-600">{chapterSummary.completionRate}%</p>
+                            <p className="text-xs text-gray-500 mt-1">{chapterSummary.membersCompleteKPI}/{chapterSummary.membersWithKPI} member</p>
+                        </Card>
+                    </div>
+
+                    {/* Pending Approvals */}
+                    {pendingApprovals.length > 0 && (
+                        <div className="mb-8">
+                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                                <i className="fas fa-clock mr-2 text-yellow-600"></i>
+                                Pending Approvals ({pendingApprovals.length})
+                            </h2>
+                            <div className="space-y-4">
+                                {pendingApprovals.map(pending => (
+                                    <Card key={pending.userId} className="border-l-4 border-yellow-400">
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-start">
+                                                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(pending.name)}&background=6b7280&color=fff`} 
+                                                         className="w-12 h-12 rounded-full" />
+                                                    <div className="ml-4">
+                                                        <h3 className="font-semibold text-gray-900">{pending.name}</h3>
+                                                        <p className="text-sm text-gray-600">{pending.businessName}</p>
+                                                        {pending.businessDesc && (
+                                                            <p className="text-xs text-gray-500 mt-1">{pending.businessDesc}</p>
+                                                        )}
+                                                        <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                                                            <span><i className="fas fa-envelope text-gray-400 mr-1"></i>{pending.email}</span>
+                                                            <span><i className="fas fa-phone text-gray-400 mr-1"></i>{pending.phone}</span>
+                                                            <span><i className="fas fa-calendar text-gray-400 mr-1"></i>Daftar: {pending.registeredAt}</span>
+                                                            {pending.referredBy && (
+                                                                <span><i className="fas fa-user-plus text-gray-400 mr-1"></i>Reff: {pending.referredBy}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex space-x-2 mt-4 md:mt-0">
+                                                <Button variant="success" onClick={() => handleApprove(pending.userId)}>
+                                                    <i className="fas fa-check mr-2"></i>Setujui
+                                                </Button>
+                                                <Button variant="danger" onClick={() => handleReject(pending.userId)}>
+                                                    <i className="fas fa-times mr-2"></i>Tolak
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Member Directory */}
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <i className="fas fa-users mr-2 text-blue-600"></i>
+                            Member Directory ({allMembers.length})
+                        </h2>
+                        
+                        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Member</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bisnis</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kontak</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Week {weekInfo.weekNumber}</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {allMembersKPI.map(member => (
+                                            <tr key={member.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => {
+                                                // Bisa tambahin modal di sini juga kalo mau
+                                            }}>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <img src={member.avatar} className="w-8 h-8 rounded-full mr-3" />
+                                                        <div>
+                                                            <p className="font-medium text-gray-900">{member.name}</p>
+                                                            <p className="text-xs text-gray-500">{member.badge}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-sm text-gray-900">{member.businessName}</p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-sm text-gray-600">{member.phone}</p>
+                                                    <p className="text-xs text-gray-500">{member.email}</p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-2 py-1 rounded-full text-xs ${
+                                                        member.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                        {member.isApproved ? 'Active' : 'Pending'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <span className="font-bold text-blue-600 mr-2">{member.currentWeekPoints}</span>
+                                                        <div className="w-16 bg-gray-200 rounded-full h-2">
+                                                            <div className="bg-blue-600 rounded-full h-2" style={{ width: `${member.currentWeekPercentage}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="font-medium text-gray-900">{member.totalPoints || 0}</span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== LEADERBOARD PAGE ====================
+        const LeaderboardPage = ({ state }) => {
+            const allMembersKPI = state.getAllMembersKPI();
+            const weekInfo = getWeekRange();
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Leaderboard</h1>
+                    <p className="text-sm text-gray-600 mb-6">Minggu {weekInfo.weekNumber} • {weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    
+                    <div className="space-y-3">
+                        {allMembersKPI.map((member, index) => (
+                            <MemberLeaderboardCard 
+                                key={member.id} 
+                                member={member} 
+                                rank={index + 1} 
+                            />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== PROFILE PAGE ====================
+        const ProfilePage = ({ currentUser }) => {
+            return (
+                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile Saya</h1>
+                    
+                    <Card className="mb-6">
+                        <div className="flex flex-col md:flex-row md:items-center">
+                            <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
+                                <img src={currentUser?.avatar} alt={currentUser?.name} className="w-24 h-24 rounded-full border-4 border-blue-100" />
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-2xl font-bold text-gray-900">{currentUser?.name}</h2>
+                                <p className={`font-medium mt-1 ${
+                                    currentUser?.badge === 'Super Admin' ? 'text-purple-600' :
+                                    currentUser?.badge === 'Champion' ? 'text-yellow-600' : 'text-blue-600'
+                                }`}>
+                                    {currentUser?.badge}
+                                </p>
+                                <p className="text-gray-600 mt-2">{currentUser?.businessName}</p>
+                            </div>
+                            <div className="mt-4 md:mt-0">
+                                <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i className="fas fa-check-circle mr-2"></i>Verified Member
+                                </span>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <Card>
+                            <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                                <i className="fas fa-address-card mr-2 text-blue-600"></i>
+                                Informasi Pribadi
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">Nama Lengkap</span>
+                                    <span className="font-medium">{currentUser?.name}</span>
+                                </div>
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">Email</span>
+                                    <span className="font-medium">{currentUser?.email}</span>
+                                </div>
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">No. HP</span>
+                                    <span className="font-medium">{currentUser?.phone}</span>
+                                </div>
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">Bergabung</span>
+                                    <span className="font-medium">{currentUser?.joinDate}</span>
+                                </div>
+                                <div className="flex justify-between py-2">
+                                    <span className="text-gray-600">Chapter</span>
+                                    <span className="font-medium">{currentUser?.chapter}</span>
+                                </div>
+                            </div>
+                        </Card>
+
+                        <Card>
+                            <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+                                <i className="fas fa-briefcase mr-2 text-blue-600"></i>
+                                Informasi Bisnis
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">Nama Bisnis</span>
+                                    <span className="font-medium">{currentUser?.businessName}</span>
+                                </div>
+                                {currentUser?.businessDesc && (
+                                    <div className="py-2 border-b">
+                                        <span className="text-gray-600 block mb-1">Deskripsi</span>
+                                        <p className="text-gray-800 bg-gray-50 p-2 rounded">{currentUser.businessDesc}</p>
+                                    </div>
+                                )}
+                                <div className="flex justify-between py-2 border-b">
+                                    <span className="text-gray-600">LinkedIn</span>
+                                    {currentUser?.socialLinkedin ? (
+                                        <a href={currentUser.socialLinkedin} target="_blank" className="font-medium text-blue-600 hover:underline">
+                                            <i className="fab fa-linkedin mr-1"></i>Profile
+                                        </a>
+                                    ) : <span className="text-gray-400">-</span>}
+                                </div>
+                                <div className="flex justify-between py-2">
+                                    <span className="text-gray-600">Instagram</span>
+                                    {currentUser?.socialInstagram ? (
+                                        <a href={currentUser.socialInstagram} target="_blank" className="font-medium text-blue-600 hover:underline">
+                                            <i className="fab fa-instagram mr-1"></i>Profile
+                                        </a>
+                                    ) : <span className="text-gray-400">-</span>}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==================== BOTTOM NAVIGATION ====================
+        const BottomNav = ({ active = 'home', role = 'member' }) => {
+            const items = [
+                { id: 'home', icon: 'fas fa-home', label: 'Dashboard', href: '#/dashboard' },
+                { id: 'leaderboard', icon: 'fas fa-trophy', label: 'Leaderboard', href: '#/leaderboard' },
+                { id: 'profile', icon: 'fas fa-user', label: 'Profile', href: '#/profile' }
+            ];
+
+            return (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 bottom-nav-shadow py-2 px-4 flex justify-around items-center z-50">
+                    {items.map(item => (
+                        <a key={item.id} href={item.href} 
+                           className={`flex flex-col items-center p-2 ${active === item.id ? 'text-blue-600' : 'text-gray-500'}`}>
+                            <i className={`${item.icon} text-xl`}></i>
+                            <span className="text-xs mt-1">{item.label}</span>
+                        </a>
+                    ))}
+                </div>
+            );
+        };
+
+        // ==================== NAVIGATION HEADER ====================
+        const Navigation = ({ currentUser, onLogout }) => (
+            <nav className="bg-white shadow-sm sticky top-0 z-40 px-4 py-3">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+                            BNI KPI Champion
+                        </h1>
+                        {currentUser?.role === 'super_admin' && (
+                            <span className="ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+                                <i className="fas fa-crown mr-1"></i>Super Admin
+                            </span>
+                        )}
+                        {currentUser?.role === 'member' && currentUser?.badge === 'Champion' && (
+                            <span className="ml-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                                <i className="fas fa-crown mr-1"></i>Champion
+                            </span>
+                        )}
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <span className="text-sm text-gray-700 hidden sm:block">{currentUser?.name}</span>
+                        <button onClick={onLogout} className="text-gray-500 hover:text-gray-700">
+                            <i className="fas fa-sign-out-alt text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        );
+
+        // ==================== MAIN APP ====================
+        const App = () => {
+            const [currentUser, setCurrentUser] = React.useState(() => {
+                const saved = localStorage.getItem('bni_currentUser');
+                return saved ? JSON.parse(saved) : null;
+            });
+            const [currentPath, setCurrentPath] = React.useState(window.location.hash || '#/dashboard');
+
+            React.useEffect(() => {
+                const handler = () => setCurrentPath(window.location.hash);
+                window.addEventListener('hashchange', handler);
+                return () => window.removeEventListener('hashchange', handler);
+            }, []);
+
+            const handleLogin = (email, password) => {
+                const result = AppState.login(email, password);
+                if (result.success) {
+                    setCurrentUser(result.user);
+                    window.location.hash = '/dashboard';
+                }
+                return result;
+            };
+
+            const handleRegister = (formData) => {
+                return AppState.register(formData);
+            };
+
+            const handleLogout = () => {
+                AppState.logout();
+                setCurrentUser(null);
+                window.location.hash = '/login';
+            };
+
+            // Protected routes
+            if (!currentUser && !currentPath.includes('/login') && !currentPath.includes('/register')) {
+                window.location.hash = '/login';
+                return null;
+            }
+
+            const path = currentPath.split('?')[0];
+            
+            // Public pages
+            if (path === '#/login' || path === '#/' || path === '') {
+                return <Login onLogin={handleLogin} />;
+            }
+            
+            if (path === '#/register') {
+                return <Register onRegister={handleRegister} />;
+            }
+            
+            // Protected pages
+            if (currentUser) {
+                let page;
+                let activeNav = 'home';
+                
+                if (currentUser.role === 'super_admin') {
+                    if (path === '#/dashboard') { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; activeNav = 'leaderboard'; }
+                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; activeNav = 'profile'; }
+                    else { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                } else {
+                    if (path === '#/dashboard') { page = <MemberDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; activeNav = 'leaderboard'; }
+                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; activeNav = 'profile'; }
+                    else { page = <MemberDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                }
+                
+                return (
+                    <>
+                        <Navigation currentUser={currentUser} onLogout={handleLogout} />
+                        <main>{page}</main>
+                        <BottomNav active={activeNav} role={currentUser.role} />
+                    </>
+                );
+            }
+            
+            return null;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>
