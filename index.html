@@ -142,6 +142,17 @@
                 width: 85%;
             }
         }
+        
+        /* PRIMA+ Logo Style */
+        .prima-logo {
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: 1px;
+        }
+        .prima-logo span {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +160,7 @@
 
     <script type="text/babel">
         // -------------------------------------------------------------------
-        // CHAPTER KPI TRACKER - WITH HAMBURGER MENU
+        // CHAPTER KPI TRACKER - WITH HAMBURGER MENU IN HEADER (FIXED)
         // -------------------------------------------------------------------
         
         // === CLEAR ALL OLD DATA - FRESH START ===
@@ -609,7 +620,7 @@
             },
             {
                 id: 2,
-                title: 'BNI Networking Night',
+                title: 'Trial Networking Night',
                 date: '2026-02-25',
                 time: '18:30',
                 speaker: 'Dimas Prayoga',
@@ -617,7 +628,7 @@
                 location: 'Hotel Indonesia Kempinski',
                 address: 'Jl. M.H. Thamrin No.1, Jakarta Pusat',
                 mapLink: 'https://maps.app.goo.gl/xyz',
-                description: 'Networking session antar member BNI',
+                description: 'Networking session antar member Trial',
                 createdBy: 1,
                 createdAt: '2026-02-13',
                 attendees: [2, 4, 5, 8],
@@ -644,7 +655,7 @@
                 userId: null,
                 type: 'event',
                 eventId: 2,
-                title: 'Event Baru: BNI Networking Night',
+                title: 'Event Baru: Trial Networking Night',
                 message: 'Networking Night akan diadakan pada 25 Februari 2026',
                 isRead: false,
                 createdAt: '2026-02-13'
@@ -1336,113 +1347,6 @@
                         </div>
                     )}
                 </div>
-            );
-        };
-
-        // ==================== HAMBURGER MENU COMPONENT ====================
-        const HamburgerMenu = ({ currentUser, active, onNavigate }) => {
-            const [isOpen, setIsOpen] = React.useState(false);
-
-            const menuItems = [
-                { id: 'home', icon: 'fas fa-home', label: 'Dashboard', href: '#/dashboard' },
-                { id: 'events', icon: 'fas fa-calendar', label: 'Events', href: '#/events' },
-                { id: 'leaderboard', icon: 'fas fa-trophy', label: 'Leaderboard', href: '#/leaderboard' },
-                { id: 'profile', icon: 'fas fa-user', label: 'Profile', href: '#/profile' }
-            ];
-
-            const toggleMenu = () => {
-                setIsOpen(!isOpen);
-            };
-
-            const handleItemClick = (href) => {
-                window.location.hash = href;
-                setIsOpen(false);
-            };
-
-            return (
-                <>
-                    {/* Menu Toggle Button */}
-                    <button
-                        onClick={toggleMenu}
-                        className={`menu-toggle-button fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg flex items-center justify-center ${
-                            isOpen ? 'active rotate-45' : ''
-                        }`}
-                    >
-                        <i className={`fas ${isOpen ? 'fa-times' : 'fa-bars'} text-2xl transition-transform`}></i>
-                    </button>
-
-                    {/* Overlay */}
-                    <div
-                        className={`menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 ${
-                            isOpen ? 'open' : ''
-                        }`}
-                        onClick={toggleMenu}
-                    ></div>
-
-                    {/* Side Menu */}
-                    <div
-                        className={`side-menu fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-40 p-6 ${
-                            isOpen ? 'open' : ''
-                        }`}
-                    >
-                        {/* User Info */}
-                        <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-gray-200">
-                            <img
-                                src={currentUser?.avatar}
-                                alt={currentUser?.name}
-                                className="w-16 h-16 rounded-full border-4 border-blue-100 object-cover"
-                            />
-                            <div>
-                                <h3 className="font-bold text-gray-900">{currentUser?.name}</h3>
-                                <p className="text-sm text-gray-600">{currentUser?.businessName}</p>
-                                <div className="flex items-center mt-1">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${
-                                        currentUser?.badge === 'Champion' 
-                                            ? 'bg-yellow-100 text-yellow-800' 
-                                            : 'bg-blue-100 text-blue-800'
-                                    }`}>
-                                        {currentUser?.badge}
-                                    </span>
-                                    <span className="text-xs text-gray-500 ml-2">
-                                        {currentUser?.chapter}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Menu Items */}
-                        <div className="space-y-2">
-                            {menuItems.map(item => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => handleItemClick(item.href)}
-                                    className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all ${
-                                        active === item.id
-                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <i className={`${item.icon} text-xl w-6`}></i>
-                                    <span className="font-medium">{item.label}</span>
-                                    {active === item.id && (
-                                        <i className="fas fa-check-circle ml-auto"></i>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Additional Info */}
-                        <div className="absolute bottom-6 left-6 right-6">
-                            <div className="bg-gray-50 rounded-xl p-4 text-center">
-                                <p className="text-xs text-gray-500 mb-2">Kode Referral</p>
-                                <p className="font-mono font-bold text-blue-600">{currentUser?.referralCode}</p>
-                            </div>
-                            <p className="text-xs text-center text-gray-400 mt-4">
-                                © 2026 Chapter KPI
-                            </p>
-                        </div>
-                    </div>
-                </>
             );
         };
 
@@ -4060,41 +3964,164 @@
             );
         };
 
-        // ==================== BOTTOM NAVIGATION - HAMBURGER MENU ====================
-        // (Ini udah diganti dengan HamburgerMenu component di atas)
-        // Kita hapus BottomNav yang lama dan pake HamburgerMenu
+        // ==================== HAMBURGER MENU COMPONENT ====================
+        const HamburgerMenu = ({ currentUser, isOpen, onClose }) => {
+            // Dapatkan active menu dari hash
+            const getActiveFromHash = () => {
+                const hash = window.location.hash;
+                if (hash.includes('dashboard')) return 'home';
+                if (hash.includes('events')) return 'events';
+                if (hash.includes('leaderboard')) return 'leaderboard';
+                if (hash.includes('profile')) return 'profile';
+                return 'home';
+            };
+
+            const active = getActiveFromHash();
+
+            const menuItems = [
+                { id: 'home', icon: 'fas fa-home', label: 'Dashboard', href: '#/dashboard' },
+                { id: 'events', icon: 'fas fa-calendar', label: 'Events', href: '#/events' },
+                { id: 'leaderboard', icon: 'fas fa-trophy', label: 'Leaderboard', href: '#/leaderboard' },
+                { id: 'profile', icon: 'fas fa-user', label: 'Profile', href: '#/profile' }
+            ];
+
+            const handleItemClick = (href) => {
+                window.location.hash = href;
+                onClose();
+            };
+
+            return (
+                <>
+                    {/* Overlay */}
+                    <div
+                        className={`menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 ${
+                            isOpen ? 'open' : ''
+                        }`}
+                        onClick={onClose}
+                    ></div>
+
+                    {/* Side Menu */}
+                    <div
+                        className={`side-menu fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-40 p-6 overflow-y-auto ${
+                            isOpen ? 'open' : ''
+                        }`}
+                    >
+                        {/* User Info */}
+                        <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-gray-200">
+                            <img
+                                src={currentUser?.avatar}
+                                alt={currentUser?.name}
+                                className="w-16 h-16 rounded-full border-4 border-blue-100 object-cover"
+                            />
+                            <div>
+                                <h3 className="font-bold text-gray-900">{currentUser?.name}</h3>
+                                <p className="text-sm text-gray-600">{currentUser?.businessName}</p>
+                                <div className="flex items-center mt-1">
+                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                        currentUser?.badge === 'Champion' 
+                                            ? 'bg-yellow-100 text-yellow-800' 
+                                            : 'bg-blue-100 text-blue-800'
+                                    }`}>
+                                        {currentUser?.badge}
+                                    </span>
+                                    <span className="text-xs text-gray-500 ml-2">
+                                        {currentUser?.chapter}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div className="space-y-2">
+                            {menuItems.map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleItemClick(item.href)}
+                                    className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all ${
+                                        active === item.id
+                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                                            : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <i className={`${item.icon} text-xl w-6`}></i>
+                                    <span className="font-medium">{item.label}</span>
+                                    {active === item.id && (
+                                        <i className="fas fa-check-circle ml-auto"></i>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Additional Info - UBAH COPYRIGHT DI SINI */}
+                        <div className="mt-8">
+                            <div className="bg-gray-50 rounded-xl p-4 text-center">
+                                <p className="text-xs text-gray-500 mb-2">Kode Referral</p>
+                                <p className="font-mono font-bold text-blue-600">{currentUser?.referralCode}</p>
+                            </div>
+                            <div className="text-center mt-4">
+                                <div className="prima-logo">
+                                    <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">PRIMA+</span>
+                                    <span className="text-xs text-gray-400 mx-1">•</span>
+                                    <span className="text-xs text-gray-500">COURSE</span>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    created by PRIMA+ COURSE © 2026
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
+        };
 
         // ==================== NAVIGATION HEADER ====================
         const Navigation = ({ currentUser, onLogout }) => {
             const unreadCount = AppState.getUnreadNotificationCount(currentUser?.id);
+            const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
             return (
-                <nav className="bg-white shadow-sm sticky top-0 z-40 px-4 py-3">
-                    <div className="flex justify-between items-center max-w-7xl mx-auto">
-                        <div className="flex items-center">
-                            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-                                KPI Monitoring
-                            </h1>
-                            {currentUser?.role === 'super_admin' && (
-                                <span className="ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
-                                    <i className="fas fa-crown mr-1"></i>Super Admin
-                                </span>
-                            )}
-                            {currentUser?.role === 'member' && currentUser?.badge === 'Champion' && (
-                                <span className="ml-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
-                                    <i className="fas fa-crown mr-1"></i>Champion
-                                </span>
-                            )}
+                <>
+                    <nav className="bg-white shadow-sm sticky top-0 z-40 px-4 py-3">
+                        <div className="flex justify-between items-center max-w-7xl mx-auto">
+                            <div className="flex items-center">
+                                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+                                    KPI Monitoring
+                                </h1>
+                                {currentUser?.role === 'super_admin' && (
+                                    <span className="ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
+                                        <i className="fas fa-crown mr-1"></i>Super Admin
+                                    </span>
+                                )}
+                                {currentUser?.role === 'member' && currentUser?.badge === 'Champion' && (
+                                    <span className="ml-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
+                                        <i className="fas fa-crown mr-1"></i>Champion
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center space-x-2 sm:space-x-4">
+                                <NotificationBell currentUser={currentUser} />
+                                {/* HAMBURGER MENU BUTTON */}
+                                <button
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="menu-toggle-button w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all"
+                                >
+                                    <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl transition-transform`}></i>
+                                </button>
+                                <span className="text-sm text-gray-700 hidden md:block">{currentUser?.name}</span>
+                                <button onClick={onLogout} className="text-gray-500 hover:text-gray-700 p-2">
+                                    <i className="fas fa-sign-out-alt text-lg"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-2 sm:space-x-4">
-                            <NotificationBell currentUser={currentUser} />
-                            <span className="text-sm text-gray-700 hidden md:block">{currentUser?.name}</span>
-                            <button onClick={onLogout} className="text-gray-500 hover:text-gray-700 p-2">
-                                <i className="fas fa-sign-out-alt text-lg"></i>
-                            </button>
-                        </div>
-                    </div>
-                </nav>
+                    </nav>
+
+                    {/* Side Menu */}
+                    <HamburgerMenu 
+                        currentUser={currentUser} 
+                        isOpen={isMenuOpen} 
+                        onClose={() => setIsMenuOpen(false)}
+                    />
+                </>
             );
         };
 
@@ -4172,8 +4199,7 @@
                 return (
                     <>
                         <Navigation currentUser={currentUser} onLogout={handleLogout} />
-                        <main className="pb-24">{page}</main>
-                        <HamburgerMenu currentUser={currentUser} active={activeNav} />
+                        <main className="pb-6">{page}</main>
                     </>
                 );
             }
