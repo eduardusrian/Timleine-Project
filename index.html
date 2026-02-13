@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>KPI Monitoring</title>
+    <title>Chapter KPI • Champion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -17,6 +17,25 @@
             background-color: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
         }
+        .leaderboard-container {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .leaderboard-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .leaderboard-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .leaderboard-container::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+        .leaderboard-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -24,7 +43,7 @@
 
     <script type="text/babel">
         // -------------------------------------------------------------------
-        // KPI Monitoring TRACKER - FIXED MODAL PROFILE
+        // CHAPTER KPI TRACKER - WITH FILTER & AVATAR CLICK
         // -------------------------------------------------------------------
         
         // === CLEAR ALL OLD DATA - FRESH START ===
@@ -59,143 +78,179 @@
         // 1. SUPER ADMIN
         const superAdmin = {
             id: 1,
-            name: 'Andi Santoso',
-            businessName: 'Andi Consulting',
-            businessDesc: 'Konsultan bisnis & digital transformation specialist',
-            socialLinkedin: 'https://linkedin.com/in/andryaas',
-            socialInstagram: 'https://instagram.com/andryaas',
-            phone: '+62 812-3456-7890',
-            email: 'superadmin@trial.com',
+            name: 'Rizky Fadillah',
+            businessName: 'Fadillah Consulting',
+            businessDesc: 'Strategic business & performance advisor',
+            socialLinkedin: 'https://linkedin.com/in/rizkyfadillah',
+            socialInstagram: 'https://instagram.com/rizkyfadillah',
+            phone: '+62 812-8888-1234',
+            email: 'superadmin@chapter.id',
             password: 'admin123',
             role: 'super_admin',
             badge: 'Super Admin',
             chapter: 'Jakarta 1',
-            joinDate: '2025-01-15',
-            avatar: 'https://ui-avatars.com/api/?name=Andryaas+Andi&background=2563eb&color=fff',
+            joinDate: '2025-02-01',
+            avatar: 'https://ui-avatars.com/api/?name=Rizky+Fadillah&background=2563eb&color=fff',
             isApproved: true,
-            totalPoints: 2450,
-            weeklyAverage: 94
+            totalPoints: 2670,
+            weeklyAverage: 96
         };
 
-        // 2. MEMBERS - DENGAN DATA LENGKAP
+        // 2. MEMBERS - DENGAN DATA LENGKAP (ditambah beberapa member baru biar banyak)
         const members = [
             {
                 id: 2,
-                name: 'John Champion',
-                businessName: 'Champion Properties',
-                businessDesc: 'Property agent specialist - rumah, apartemen, kavling',
-                socialLinkedin: 'https://linkedin.com/in/johnchampion',
-                socialInstagram: 'https://instagram.com/johnchampion',
+                name: 'Dimas Prayoga',
+                businessName: 'Prayoga Properties',
+                businessDesc: 'Property agent - rumah, apartemen, tanah',
+                socialLinkedin: 'https://linkedin.com/in/dimasprayoga',
+                socialInstagram: 'https://instagram.com/dimasprayoga',
                 phone: '+62 812-3456-7891',
-                email: 'john@trial.com',
-                password: 'john123',
+                email: 'dimas@chapter.id',
+                password: 'dimas123',
                 role: 'member',
                 badge: 'Champion',
                 chapter: 'Jakarta 1',
-                joinDate: '2026-01-15',
-                avatar: 'https://ui-avatars.com/api/?name=John+Champion&background=16a34a&color=fff',
+                joinDate: '2026-01-10',
+                avatar: 'https://ui-avatars.com/api/?name=Dimas+Prayoga&background=16a34a&color=fff',
                 isApproved: true,
                 referredBy: 1,
-                totalPoints: 1240,
-                weeklyAverage: 82
+                totalPoints: 1320,
+                weeklyAverage: 84
             },
             {
                 id: 3,
-                name: 'Lisa Member',
-                businessName: 'Lisa Bakery',
+                name: 'Sinta Dewi',
+                businessName: 'Sinta Bakery',
                 businessDesc: 'Fresh baked goods, custom cakes & pastry',
-                socialLinkedin: 'https://linkedin.com/in/lisabakery',
-                socialInstagram: 'https://instagram.com/lisabakery',
+                socialLinkedin: 'https://linkedin.com/in/sintadewi',
+                socialInstagram: 'https://instagram.com/sintabakery',
                 phone: '+62 812-3456-7892',
-                email: 'lisa@trial.com',
-                password: 'lisa123',
+                email: 'sinta@chapter.id',
+                password: 'sinta123',
                 role: 'member',
                 badge: 'Member',
                 chapter: 'Jakarta 1',
                 joinDate: '2026-02-01',
-                avatar: 'https://ui-avatars.com/api/?name=Lisa+Member&background=dc2626&color=fff',
+                avatar: 'https://ui-avatars.com/api/?name=Sinta+Dewi&background=dc2626&color=fff',
                 isApproved: true,
                 referredBy: 2,
-                totalPoints: 560,
-                weeklyAverage: 70
+                totalPoints: 590,
+                weeklyAverage: 68
             },
             {
-                id: 5,
-                name: 'Rudi Hartono',
-                businessName: 'Rudi Digital Marketing',
+                id: 4,
+                name: 'Bambang Setiawan',
+                businessName: 'Bambang Digital',
                 businessDesc: 'SEO, SEM, social media ads specialist',
-                socialLinkedin: 'https://linkedin.com/in/rudihartono',
-                socialInstagram: 'https://instagram.com/rudidigital',
+                socialLinkedin: 'https://linkedin.com/in/bambangsetiawan',
+                socialInstagram: 'https://instagram.com/bambangdigital',
                 phone: '+62 812-3456-7893',
-                email: 'rudi@trial.com',
-                password: 'rudi123',
+                email: 'bambang@chapter.id',
+                password: 'bambang123',
                 role: 'member',
                 badge: 'Member',
                 chapter: 'Jakarta 1',
                 joinDate: '2026-02-10',
-                avatar: 'https://ui-avatars.com/api/?name=Rudi+Hartono&background=9333ea&color=fff',
+                avatar: 'https://ui-avatars.com/api/?name=Bambang+Setiawan&background=9333ea&color=fff',
                 isApproved: true,
                 referredBy: 1,
-                totalPoints: 320,
-                weeklyAverage: 45
+                totalPoints: 380,
+                weeklyAverage: 42
+            },
+            {
+                id: 5,
+                name: 'Maya Sari',
+                businessName: 'Maya Law Firm',
+                businessDesc: 'Legal consulting, corporate law, contract drafting',
+                socialLinkedin: 'https://linkedin.com/in/mayasari',
+                socialInstagram: 'https://instagram.com/mayalaw',
+                phone: '+62 812-3456-7894',
+                email: 'maya@chapter.id',
+                password: 'maya123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-15',
+                avatar: 'https://ui-avatars.com/api/?name=Maya+Sari&background=e11d48&color=fff',
+                isApproved: true,
+                referredBy: 2,
+                totalPoints: 210,
+                weeklyAverage: 35
             },
             {
                 id: 6,
-                name: 'Susi Susanti',
-                businessName: 'Susi Law Firm',
-                businessDesc: 'Legal consulting, corporate law, contract drafting',
-                socialLinkedin: 'https://linkedin.com/in/susilaw',
-                socialInstagram: 'https://instagram.com/susilawfirm',
-                phone: '+62 812-3456-7894',
-                email: 'susi@trial.com',
-                password: 'susi123',
+                name: 'Agus Pratama',
+                businessName: 'Agus Teknologi',
+                businessDesc: 'Web development & IT solutions',
+                socialLinkedin: 'https://linkedin.com/in/aguspratama',
+                socialInstagram: 'https://instagram.com/agustekno',
+                phone: '+62 812-3456-7895',
+                email: 'agus@chapter.id',
+                password: 'agus123',
                 role: 'member',
                 badge: 'Member',
                 chapter: 'Jakarta 1',
-                joinDate: '2026-02-15',
-                avatar: 'https://ui-avatars.com/api/?name=Susi+Susanti&background=e11d48&color=fff',
+                joinDate: '2026-02-16',
+                avatar: 'https://ui-avatars.com/api/?name=Agus+Pratama&background=6b7280&color=fff',
+                isApproved: true,
+                referredBy: 1,
+                totalPoints: 180,
+                weeklyAverage: 30
+            },
+            {
+                id: 7,
+                name: 'Rina Wijaya',
+                businessName: 'Rina Fashion',
+                businessDesc: 'Fashion designer & boutique',
+                socialLinkedin: 'https://linkedin.com/in/rinawijaya',
+                socialInstagram: 'https://instagram.com/rinafashion',
+                phone: '+62 812-3456-7896',
+                email: 'rina@chapter.id',
+                password: 'rina123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-18',
+                avatar: 'https://ui-avatars.com/api/?name=Rina+Wijaya&background=ec4899&color=fff',
+                isApproved: true,
+                referredBy: 3,
+                totalPoints: 150,
+                weeklyAverage: 25
+            },
+            {
+                id: 8,
+                name: 'Dedi Kurniawan',
+                businessName: 'Dedi Auto',
+                businessDesc: 'Car repair & maintenance',
+                socialLinkedin: 'https://linkedin.com/in/dedikurniawan',
+                socialInstagram: 'https://instagram.com/dediauto',
+                phone: '+62 812-3456-7897',
+                email: 'dedi@chapter.id',
+                password: 'dedi123',
+                role: 'member',
+                badge: 'Member',
+                chapter: 'Jakarta 1',
+                joinDate: '2026-02-20',
+                avatar: 'https://ui-avatars.com/api/?name=Dedi+Kurniawan&background=0891b2&color=fff',
                 isApproved: true,
                 referredBy: 2,
-                totalPoints: 180,
-                weeklyAverage: 38
-            }
-        ];
-
-        // 3. PENDING MEMBER
-        const pendingMembers = [
-            {
-                id: 4,
-                name: 'Budi Santoso',
-                businessName: 'Budi Digital',
-                businessDesc: 'Web development & IT solutions',
-                socialLinkedin: 'https://linkedin.com/in/budisantoso',
-                socialInstagram: 'https://instagram.com/budidigital',
-                phone: '+62 812-3456-7895',
-                email: 'budi@trial.com',
-                password: 'budi123',
-                role: 'member',
-                badge: 'Member',
-                chapter: 'Jakarta 1',
-                joinDate: '2026-02-15',
-                avatar: 'https://ui-avatars.com/api/?name=Budi+Santoso&background=6b7280&color=fff',
-                isApproved: false,
-                referredBy: 1,
-                totalPoints: 0,
-                weeklyAverage: 0
+                totalPoints: 120,
+                weeklyAverage: 20
             }
         ];
 
         // === GABUNGIN SEMUA USER ===
-        const allUsers = [superAdmin, ...members, ...pendingMembers];
+        const allUsers = [superAdmin, ...members];
         
         // === SAVE KE LOCALSTORAGE ===
-        localStorage.setItem('trial_users', JSON.stringify(allUsers));
+        localStorage.setItem('chapter_users', JSON.stringify(allUsers));
 
         // === INIT KPI DATA ===
         const weekInfo = getWeekRange();
         
         const kpiData = [
-            // John's KPI - Current Week (100%)
+            // Dimas's KPI - Current Week (100%)
             {
                 id: 1,
                 userId: 2,
@@ -213,7 +268,7 @@
                 maxPoints: 100,
                 percentage: 100
             },
-            // Lisa's KPI - Current Week (60%)
+            // Sinta's KPI - Current Week (80%)
             {
                 id: 2,
                 userId: 3,
@@ -222,36 +277,54 @@
                 year: new Date().getFullYear(),
                 kpi: [
                     { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
-                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
                     { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
                     { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 2, points: 20, completed: true },
                     { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true }
+                ],
+                totalPoints: 80,
+                maxPoints: 100,
+                percentage: 80
+            },
+            // Bambang's KPI - Current Week (60%)
+            {
+                id: 3,
+                userId: 4,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
                 ],
                 totalPoints: 60,
                 maxPoints: 100,
                 percentage: 60
             },
-            // Rudi's KPI - Current Week (40%)
+            // Maya's KPI - Current Week (40%)
             {
-                id: 3,
+                id: 4,
                 userId: 5,
                 weekStart: weekInfo.start,
                 weekNumber: weekInfo.weekNumber,
                 year: new Date().getFullYear(),
                 kpi: [
-                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
                     { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
-                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true },
-                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 1, points: 20, completed: true },
-                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 1, points: 20, completed: true }
                 ],
                 totalPoints: 40,
                 maxPoints: 100,
                 percentage: 40
             },
-            // Susi's KPI - Current Week (20%)
+            // Agus's KPI - Current Week (20%)
             {
-                id: 4,
+                id: 5,
                 userId: 6,
                 weekStart: weekInfo.start,
                 weekNumber: weekInfo.weekNumber,
@@ -266,24 +339,46 @@
                 totalPoints: 20,
                 maxPoints: 100,
                 percentage: 20
+            },
+            // Rina's KPI - Current Week (20%)
+            {
+                id: 6,
+                userId: 7,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 0.5, points: 20, completed: false },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                ],
+                totalPoints: 20,
+                maxPoints: 100,
+                percentage: 20
+            },
+            // Dedi's KPI - Current Week (0%)
+            {
+                id: 7,
+                userId: 8,
+                weekStart: weekInfo.start,
+                weekNumber: weekInfo.weekNumber,
+                year: new Date().getFullYear(),
+                kpi: [
+                    { id: 'meeting', name: 'Join Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'ononone', name: '1 on 1 Meeting', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'visitor', name: 'Bawa Visitor', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false },
+                    { id: 'learning', name: 'Belajar (BB)', target: '1 jam', targetHours: 1, achievedHours: 0, points: 20, completed: false },
+                    { id: 'referral', name: 'Referral', target: '1 org', targetCount: 1, achievedCount: 0, points: 20, completed: false }
+                ],
+                totalPoints: 0,
+                maxPoints: 100,
+                percentage: 0
             }
         ];
 
-        localStorage.setItem('trial_kpi', JSON.stringify(kpiData));
-
-        // === PENDING APPROVALS ===
-        localStorage.setItem('trial_pending_approvals', JSON.stringify([
-            {
-                userId: 4,
-                name: 'Budi Santoso',
-                businessName: 'Budi Digital',
-                businessDesc: 'Web development & IT solutions',
-                email: 'budi@trial.com',
-                phone: '+62 812-3456-7895',
-                registeredAt: '2026-02-15',
-                referredBy: 'ANDY001'
-            }
-        ]));
+        localStorage.setItem('chapter_kpi', JSON.stringify(kpiData));
 
         // ============= GLOBAL STATE =============
         const AppState = {
@@ -291,7 +386,7 @@
             
             // ============= AUTH =============
             login: function(email, password) {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.email === email && u.password === password);
                 
                 if (user) {
@@ -301,7 +396,7 @@
                     
                     const { password, ...userWithoutPassword } = user;
                     this.currentUser = userWithoutPassword;
-                    localStorage.setItem('trial_currentUser', JSON.stringify(userWithoutPassword));
+                    localStorage.setItem('chapter_currentUser', JSON.stringify(userWithoutPassword));
                     return { success: true, user: userWithoutPassword };
                 }
                 
@@ -310,12 +405,12 @@
             
             logout: function() {
                 this.currentUser = null;
-                localStorage.removeItem('trial_currentUser');
+                localStorage.removeItem('chapter_currentUser');
             },
             
             // ============= REGISTER =============
             register: function(formData) {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 
                 if (users.find(u => u.email === formData.email)) {
                     return { success: false, message: 'Email sudah terdaftar' };
@@ -336,34 +431,21 @@
                     chapter: 'Jakarta 1',
                     joinDate: new Date().toISOString().split('T')[0],
                     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=6b7280&color=fff`,
-                    isApproved: false,
+                    isApproved: true, // Auto approve for demo
                     referredBy: formData.referralCode || null,
                     totalPoints: 0,
                     weeklyAverage: 0
                 };
 
                 users.push(newUser);
-                localStorage.setItem('trial_users', JSON.stringify(users));
+                localStorage.setItem('chapter_users', JSON.stringify(users));
                 
-                const pending = JSON.parse(localStorage.getItem('trial_pending_approvals')) || [];
-                pending.push({
-                    userId: newUser.id,
-                    name: newUser.name,
-                    businessName: newUser.businessName,
-                    businessDesc: newUser.businessDesc,
-                    email: newUser.email,
-                    phone: newUser.phone,
-                    registeredAt: newUser.joinDate,
-                    referredBy: newUser.referredBy
-                });
-                localStorage.setItem('trial_pending_approvals', JSON.stringify(pending));
-                
-                return { success: true, message: 'Registrasi berhasil! Menunggu persetujuan Super Admin.' };
+                return { success: true, message: 'Registrasi berhasil! Silakan login.' };
             },
             
             // ============= MEMBER PROFILE =============
             getMemberById: function(userId) {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.id === userId);
                 if (user) {
                     const { password, ...userWithoutPassword } = user;
@@ -372,50 +454,14 @@
                 return null;
             },
             
-            // ============= SUPER ADMIN FUNCTIONS =============
-            getPendingApprovals: function() {
-                return JSON.parse(localStorage.getItem('trial_pending_approvals')) || [];
-            },
-            
-            approveMember: function(userId) {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
-                const pending = JSON.parse(localStorage.getItem('trial_pending_approvals')) || [];
-                
-                const userIndex = users.findIndex(u => u.id === userId);
-                if (userIndex > -1) {
-                    users[userIndex].isApproved = true;
-                    users[userIndex].badge = 'Member';
-                    localStorage.setItem('trial_users', JSON.stringify(users));
-                    
-                    const filteredPending = pending.filter(p => p.userId !== userId);
-                    localStorage.setItem('trial_pending_approvals', JSON.stringify(filteredPending));
-                    
-                    return true;
-                }
-                return false;
-            },
-            
-            rejectMember: function(userId) {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
-                const pending = JSON.parse(localStorage.getItem('trial_pending_approvals')) || [];
-                
-                const filteredUsers = users.filter(u => u.id !== userId);
-                localStorage.setItem('trial_users', JSON.stringify(filteredUsers));
-                
-                const filteredPending = pending.filter(p => p.userId !== userId);
-                localStorage.setItem('trial_pending_approvals', JSON.stringify(filteredPending));
-                
-                return true;
-            },
-            
             getAllMembers: function() {
-                const users = JSON.parse(localStorage.getItem('trial_users')) || [];
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 return users.filter(u => u.role === 'member');
             },
             
             getChapterSummary: function() {
                 const members = this.getAllMembers().filter(m => m.isApproved);
-                const kpiData = JSON.parse(localStorage.getItem('trial_kpi')) || [];
+                const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const currentWeek = getWeekRange().weekNumber;
                 
                 const currentWeekKPI = kpiData.filter(k => k.weekNumber === currentWeek);
@@ -441,7 +487,7 @@
             
             // ============= KPI FUNCTIONS =============
             getCurrentWeekKPI: function(userId) {
-                const kpiData = JSON.parse(localStorage.getItem('trial_kpi')) || [];
+                const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const currentWeek = getWeekRange().weekNumber;
                 const currentYear = new Date().getFullYear();
                 
@@ -467,7 +513,7 @@
                     };
                     
                     kpiData.push(weekKPI);
-                    localStorage.setItem('trial_kpi', JSON.stringify(kpiData));
+                    localStorage.setItem('chapter_kpi', JSON.stringify(kpiData));
                 }
                 
                 weekKPI.totalPoints = weekKPI.kpi.reduce((sum, k) => sum + (k.completed ? k.points : 0), 0);
@@ -477,7 +523,7 @@
             },
             
             updateKPI: function(userId, kpiId, value, type) {
-                const kpiData = JSON.parse(localStorage.getItem('trial_kpi')) || [];
+                const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const currentWeek = getWeekRange().weekNumber;
                 const currentYear = new Date().getFullYear();
                 
@@ -497,7 +543,7 @@
                         kpiData[weekIndex].totalPoints = kpiData[weekIndex].kpi.reduce((sum, k) => sum + (k.completed ? k.points : 0), 0);
                         kpiData[weekIndex].percentage = Math.round((kpiData[weekIndex].totalPoints / kpiData[weekIndex].maxPoints) * 100);
                         
-                        localStorage.setItem('trial_kpi', JSON.stringify(kpiData));
+                        localStorage.setItem('chapter_kpi', JSON.stringify(kpiData));
                         return kpiData[weekIndex];
                     }
                 }
@@ -505,7 +551,7 @@
             },
             
             getMemberKPISummary: function(userId) {
-                const kpiData = JSON.parse(localStorage.getItem('trial_kpi')) || [];
+                const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const userKPI = kpiData.filter(k => k.userId === userId);
                 
                 const recent = userKPI.sort((a, b) => b.weekNumber - a.weekNumber).slice(0, 4);
@@ -523,7 +569,7 @@
             
             getAllMembersKPI: function() {
                 const members = this.getAllMembers().filter(m => m.isApproved);
-                const kpiData = JSON.parse(localStorage.getItem('trial_kpi')) || [];
+                const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const currentWeek = getWeekRange().weekNumber;
                 
                 return members.map(member => {
@@ -555,13 +601,13 @@
             <div className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5 ${className}`}>{children}</div>
         );
 
-        // ==================== MODAL PROFIL MEMBER - FIXED ====================
+        // ==================== MODAL PROFIL MEMBER ====================
         const MemberProfileModal = ({ member, isOpen, onClose }) => {
             if (!isOpen || !member) return null;
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in" onClick={e => e.stopPropagation()}>
                         {/* Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
                             <div className="flex items-center text-white">
@@ -793,20 +839,20 @@
             };
 
             const fillSuperAdmin = () => {
-                setEmail('superadmin@trial.com');
+                setEmail('superadmin@chapter.id');
                 setPassword('admin123');
                 setError('');
             };
             
-            const fillJohn = () => {
-                setEmail('john@trial.com');
-                setPassword('john123');
+            const fillDimas = () => {
+                setEmail('dimas@chapter.id');
+                setPassword('dimas123');
                 setError('');
             };
 
-            const fillLisa = () => {
-                setEmail('lisa@trial.com');
-                setPassword('lisa123');
+            const fillSinta = () => {
+                setEmail('sinta@chapter.id');
+                setPassword('sinta123');
                 setError('');
             };
 
@@ -815,7 +861,7 @@
                     <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-                                KPI Monitoring
+                                Chapter KPI
                             </h1>
                             <p className="text-gray-600 mt-2">Champion Performance Dashboard</p>
                         </div>
@@ -834,7 +880,7 @@
                                     value={email} 
                                     onChange={(e) => setEmail(e.target.value)} 
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
-                                    placeholder="email@trial.com" 
+                                    placeholder="email@chapter.id" 
                                     required 
                                 />
                             </div>
@@ -874,29 +920,29 @@
                                         <i className="fas fa-crown text-purple-600 mr-3"></i>
                                         <span className="font-medium">Super Admin</span>
                                     </div>
-                                    <span className="text-sm text-gray-600">superadmin@trial.com / admin123</span>
+                                    <span className="text-sm text-gray-600">superadmin@chapter.id / admin123</span>
                                 </button>
                                 
                                 <button 
-                                    onClick={fillJohn}
+                                    onClick={fillDimas}
                                     className="w-full flex items-center justify-between p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition border border-yellow-200"
                                 >
                                     <div className="flex items-center">
                                         <i className="fas fa-trophy text-yellow-600 mr-3"></i>
                                         <span className="font-medium">Champion Member</span>
                                     </div>
-                                    <span className="text-sm text-gray-600">john@trial.com / john123</span>
+                                    <span className="text-sm text-gray-600">dimas@chapter.id / dimas123</span>
                                 </button>
                                 
                                 <button 
-                                    onClick={fillLisa}
+                                    onClick={fillSinta}
                                     className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition border border-blue-200"
                                 >
                                     <div className="flex items-center">
                                         <i className="fas fa-user text-blue-600 mr-3"></i>
                                         <span className="font-medium">Regular Member</span>
                                     </div>
-                                    <span className="text-sm text-gray-600">lisa@trial.com / lisa123</span>
+                                    <span className="text-sm text-gray-600">sinta@chapter.id / sinta123</span>
                                 </button>
                             </div>
                         </div>
@@ -955,7 +1001,7 @@
                 <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
                     <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8">
                         <div className="text-center mb-8">
-                            <h1 className="text-2xl font-bold text-gray-900">Registrasi Member trial Chapter</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">Registrasi Member Chapter</h1>
                             <p className="text-gray-600 mt-2">Isi data lengkap untuk bergabung</p>
                         </div>
                         
@@ -1047,7 +1093,7 @@
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Kode Referral (Optional)</label>
                                         <input type="text" name="referralCode" value={formData.referralCode} onChange={handleChange}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Contoh: JOHN123" />
+                                            placeholder="Contoh: DIMAS001" />
                                     </div>
                                 </div>
                             </div>
@@ -1213,7 +1259,7 @@
                         </div>
                     </Card>
 
-                    {/* Leaderboard Preview - BISA DI KLIK - FIXED */}
+                    {/* Leaderboard Preview - BISA DI KLIK */}
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="font-semibold text-gray-900">Leaderboard Minggu Ini</h3>
@@ -1233,21 +1279,20 @@
             );
         };
 
-        // ==================== LEADERBOARD CARD DENGAN KLIK - FIXED ====================
+        // ==================== LEADERBOARD CARD DENGAN KLIK AVATAR ====================
         const MemberLeaderboardCard = ({ member, rank }) => {
             const [showProfile, setShowProfile] = React.useState(false);
             
             return (
                 <>
                     <Card 
-                        className={`flex items-center justify-between py-3 cursor-pointer hover:shadow-lg transition-all ${
+                        className={`flex items-center justify-between py-3 hover:shadow-lg transition-all ${
                             rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-white border-l-4 border-yellow-400' :
                             rank === 2 ? 'bg-gradient-to-r from-gray-50 to-white border-l-4 border-gray-400' :
                             rank === 3 ? 'bg-gradient-to-r from-orange-50 to-white border-l-4 border-orange-400' : ''
                         }`}
-                        onClick={() => setShowProfile(true)}
                     >
-                        <div className="flex items-center">
+                        <div className="flex items-center flex-1">
                             <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3
                                 ${rank === 1 ? 'bg-yellow-400 text-white' : 
                                   rank === 2 ? 'bg-gray-400 text-white' : 
@@ -1255,8 +1300,13 @@
                                   'bg-gray-200 text-gray-700'}`}>
                                 #{rank}
                             </span>
-                            <img src={member.avatar} className="w-10 h-10 rounded-full mr-3" />
-                            <div>
+                            <img 
+                                src={member.avatar} 
+                                className="w-10 h-10 rounded-full mr-3 cursor-pointer hover:opacity-80 transition-opacity" 
+                                onClick={() => setShowProfile(true)}
+                                alt={member.name}
+                            />
+                            <div className="cursor-pointer" onClick={() => setShowProfile(true)}>
                                 <p className="font-semibold text-gray-900">{member.name}</p>
                                 <p className="text-xs text-gray-600">{member.businessName}</p>
                             </div>
@@ -1267,7 +1317,7 @@
                         </div>
                     </Card>
 
-                    {/* Modal Profile Member - LANGSUNG PAKAI MEMBER, GA PAKE GETMEMBERBYID */}
+                    {/* Modal Profile Member */}
                     <MemberProfileModal 
                         member={member}
                         isOpen={showProfile}
@@ -1280,23 +1330,10 @@
         // ==================== SUPER ADMIN DASHBOARD ====================
         const SuperAdminDashboard = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
-            const pendingApprovals = state.getPendingApprovals();
             const allMembers = state.getAllMembers();
             const chapterSummary = state.getChapterSummary();
             const allMembersKPI = state.getAllMembersKPI();
             const weekInfo = getWeekRange();
-
-            const handleApprove = (userId) => {
-                state.approveMember(userId);
-                setRefresh(prev => prev + 1);
-            };
-
-            const handleReject = (userId) => {
-                if (confirm('Yakin ingin menolak member ini?')) {
-                    state.rejectMember(userId);
-                    setRefresh(prev => prev + 1);
-                }
-            };
 
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
@@ -1323,11 +1360,6 @@
                             <p className="text-2xl font-bold text-blue-600">{chapterSummary.totalMembers}</p>
                             <p className="text-xs text-gray-500 mt-1">Aktif: {chapterSummary.totalMembers}</p>
                         </Card>
-                        <Card className="bg-gradient-to-br from-yellow-50 to-orange-50">
-                            <p className="text-xs text-gray-600">Pending</p>
-                            <p className="text-2xl font-bold text-yellow-600">{pendingApprovals.length}</p>
-                            <p className="text-xs text-gray-500 mt-1">Menunggu approval</p>
-                        </Card>
                         <Card className="bg-gradient-to-br from-green-50 to-emerald-50">
                             <p className="text-xs text-gray-600">Total Points</p>
                             <p className="text-2xl font-bold text-green-600">{chapterSummary.totalPoints}</p>
@@ -1339,53 +1371,6 @@
                             <p className="text-xs text-gray-500 mt-1">{chapterSummary.membersCompleteKPI}/{chapterSummary.membersWithKPI} member</p>
                         </Card>
                     </div>
-
-                    {/* Pending Approvals */}
-                    {pendingApprovals.length > 0 && (
-                        <div className="mb-8">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                                <i className="fas fa-clock mr-2 text-yellow-600"></i>
-                                Pending Approvals ({pendingApprovals.length})
-                            </h2>
-                            <div className="space-y-4">
-                                {pendingApprovals.map(pending => (
-                                    <Card key={pending.userId} className="border-l-4 border-yellow-400">
-                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex items-start">
-                                                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(pending.name)}&background=6b7280&color=fff`} 
-                                                         className="w-12 h-12 rounded-full" />
-                                                    <div className="ml-4">
-                                                        <h3 className="font-semibold text-gray-900">{pending.name}</h3>
-                                                        <p className="text-sm text-gray-600">{pending.businessName}</p>
-                                                        {pending.businessDesc && (
-                                                            <p className="text-xs text-gray-500 mt-1">{pending.businessDesc}</p>
-                                                        )}
-                                                        <div className="flex flex-wrap gap-4 mt-2 text-sm">
-                                                            <span><i className="fas fa-envelope text-gray-400 mr-1"></i>{pending.email}</span>
-                                                            <span><i className="fas fa-phone text-gray-400 mr-1"></i>{pending.phone}</span>
-                                                            <span><i className="fas fa-calendar text-gray-400 mr-1"></i>Daftar: {pending.registeredAt}</span>
-                                                            {pending.referredBy && (
-                                                                <span><i className="fas fa-user-plus text-gray-400 mr-1"></i>Reff: {pending.referredBy}</span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex space-x-2 mt-4 md:mt-0">
-                                                <Button variant="success" onClick={() => handleApprove(pending.userId)}>
-                                                    <i className="fas fa-check mr-2"></i>Setujui
-                                                </Button>
-                                                <Button variant="danger" onClick={() => handleReject(pending.userId)}>
-                                                    <i className="fas fa-times mr-2"></i>Tolak
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
                     {/* Member Directory */}
                     <div>
@@ -1409,12 +1394,17 @@
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {allMembersKPI.map(member => (
-                                            <tr key={member.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => {
-                                                // Bisa tambahin modal di sini juga kalo mau
-                                            }}>
+                                            <tr key={member.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
-                                                        <img src={member.avatar} className="w-8 h-8 rounded-full mr-3" />
+                                                        <img 
+                                                            src={member.avatar} 
+                                                            className="w-8 h-8 rounded-full mr-3 cursor-pointer hover:opacity-80" 
+                                                            onClick={() => {
+                                                                // Trigger modal - kita bisa tambahin state nanti
+                                                                alert('Profile ' + member.name);
+                                                            }}
+                                                        />
                                                         <div>
                                                             <p className="font-medium text-gray-900">{member.name}</p>
                                                             <p className="text-xs text-gray-500">{member.badge}</p>
@@ -1457,24 +1447,114 @@
             );
         };
 
-        // ==================== LEADERBOARD PAGE ====================
+        // ==================== LEADERBOARD PAGE DENGAN FILTER ====================
         const LeaderboardPage = ({ state }) => {
+            const [searchTerm, setSearchTerm] = React.useState('');
+            const [filterBy, setFilterBy] = React.useState('all'); // all, champion, member
             const allMembersKPI = state.getAllMembersKPI();
             const weekInfo = getWeekRange();
+
+            // Filter members based on search and badge
+            const filteredMembers = allMembersKPI.filter(member => {
+                // Search filter
+                const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                     member.businessName.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                // Badge filter
+                if (filterBy === 'all') return matchesSearch;
+                if (filterBy === 'champion') return matchesSearch && member.badge === 'Champion';
+                if (filterBy === 'member') return matchesSearch && member.badge === 'Member';
+                
+                return matchesSearch;
+            });
 
             return (
                 <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Leaderboard</h1>
-                    <p className="text-sm text-gray-600 mb-6">Minggu {weekInfo.weekNumber} • {weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    <p className="text-sm text-gray-600 mb-4">Minggu {weekInfo.weekNumber} • {weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     
-                    <div className="space-y-3">
-                        {allMembersKPI.map((member, index) => (
-                            <MemberLeaderboardCard 
-                                key={member.id} 
-                                member={member} 
-                                rank={index + 1} 
-                            />
-                        ))}
+                    {/* Filter Section */}
+                    <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+                        <div className="flex flex-col md:flex-row gap-4">
+                            {/* Search Input */}
+                            <div className="flex-1">
+                                <div className="relative">
+                                    <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Cari member atau bisnis..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Badge Filter */}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setFilterBy('all')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        filterBy === 'all' 
+                                            ? 'bg-blue-600 text-white' 
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    Semua
+                                </button>
+                                <button
+                                    onClick={() => setFilterBy('champion')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        filterBy === 'champion' 
+                                            ? 'bg-yellow-500 text-white' 
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    <i className="fas fa-crown mr-1"></i>Champion
+                                </button>
+                                <button
+                                    onClick={() => setFilterBy('member')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        filterBy === 'member' 
+                                            ? 'bg-blue-500 text-white' 
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    <i className="fas fa-user mr-1"></i>Member
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Result Count */}
+                        <div className="mt-3 text-sm text-gray-600">
+                            Menampilkan {filteredMembers.length} dari {allMembersKPI.length} member
+                        </div>
+                    </div>
+                    
+                    {/* Leaderboard List dengan Scroll */}
+                    <div className="leaderboard-container">
+                        <div className="space-y-3 pr-2">
+                            {filteredMembers.length > 0 ? (
+                                filteredMembers.map((member, index) => (
+                                    <MemberLeaderboardCard 
+                                        key={member.id} 
+                                        member={member} 
+                                        rank={allMembersKPI.findIndex(m => m.id === member.id) + 1} // Original rank
+                                    />
+                                ))
+                            ) : (
+                                <div className="text-center py-12 bg-white rounded-xl">
+                                    <i className="fas fa-search text-4xl text-gray-300 mb-3"></i>
+                                    <p className="text-gray-500">Tidak ada member yang ditemukan</p>
+                                    <button 
+                                        onClick={() => {setSearchTerm(''); setFilterBy('all');}}
+                                        className="mt-3 text-blue-600 hover:underline"
+                                    >
+                                        Reset filter
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
@@ -1605,7 +1685,7 @@
                 <div className="flex justify-between items-center">
                     <div className="flex items-center">
                         <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-                            trial KPI Champion
+                            KPI Monitoring
                         </h1>
                         {currentUser?.role === 'super_admin' && (
                             <span className="ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
@@ -1631,7 +1711,7 @@
         // ==================== MAIN APP ====================
         const App = () => {
             const [currentUser, setCurrentUser] = React.useState(() => {
-                const saved = localStorage.getItem('trial_currentUser');
+                const saved = localStorage.getItem('chapter_currentUser');
                 return saved ? JSON.parse(saved) : null;
             });
             const [currentPath, setCurrentPath] = React.useState(window.location.hash || '#/dashboard');
