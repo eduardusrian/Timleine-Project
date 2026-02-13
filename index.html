@@ -58,6 +58,25 @@
         .file-input {
             display: none;
         }
+        .edit-profile-modal {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .kpi-button {
+            transition: all 0.2s;
+        }
+        .kpi-button:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -65,7 +84,7 @@
 
     <script type="text/babel">
         // -------------------------------------------------------------------
-        // CHAPTER KPI TRACKER - WITH CHAPTER SELECTION IN REGISTRATION
+        // CHAPTER KPI TRACKER - WITH PLUS/MINUS BUTTONS
         // -------------------------------------------------------------------
         
         // === CLEAR ALL OLD DATA - FRESH START ===
@@ -565,18 +584,17 @@
                     password: formData.password,
                     role: 'member',
                     badge: 'Member',
-                    chapter: formData.chapter || 'Jakarta 1',  // <-- PAKAI DARI FORM
+                    chapter: formData.chapter || 'Jakarta 1',
                     joinDate: new Date().toISOString().split('T')[0],
                     avatar: formData.avatar || getDefaultAvatar(formData.name),
                     isApproved: true,
                     referredBy: formData.referralCode || null,
                     totalPoints: 0,
                     weeklyAverage: 0,
-                    // Hierarchy fields
                     referralCode: generateReferralCode(formData.name, newUserId),
-                    level: referrer ? referrer.level + 1 : 2,  // Level 2 jika punya referrer, 2 jika direct (level 1 adalah super admin)
+                    level: referrer ? referrer.level + 1 : 2,
                     position: 'Member',
-                    parentId: referrer ? referrer.id : 1,  // Jika tidak ada referrer, parentnya super admin (id=1)
+                    parentId: referrer ? referrer.id : 1,
                     children: [],
                     chapterRole: 'member',
                     chapterJoinDate: new Date().toISOString().split('T')[0]
@@ -605,6 +623,54 @@
                 return { success: true, message: 'Registrasi berhasil! Silakan login.' };
             },
             
+            // ============= UPDATE PROFILE =============
+            updateProfile: function(userId, updatedData) {
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
+                const userIndex = users.findIndex(u => u.id === userId);
+                
+                if (userIndex === -1) return { success: false, message: 'User tidak ditemukan' };
+
+                // Cek email unik (kecuali email sendiri)
+                const emailExists = users.some(u => u.email === updatedData.email && u.id !== userId);
+                if (emailExists) {
+                    return { success: false, message: 'Email sudah digunakan user lain' };
+                }
+
+                // Update data yang boleh diubah
+                const updatableFields = [
+                    'name', 'businessName', 'businessDesc', 'socialLinkedin', 
+                    'socialInstagram', 'phone', 'email', 'avatar'
+                ];
+
+                updatableFields.forEach(field => {
+                    if (updatedData[field] !== undefined) {
+                        users[userIndex][field] = updatedData[field];
+                    }
+                });
+
+                // Update password jika diisi
+                if (updatedData.newPassword && updatedData.newPassword.length >= 6) {
+                    users[userIndex].password = updatedData.newPassword;
+                }
+
+                // Simpan ke localStorage
+                localStorage.setItem('chapter_users', JSON.stringify(users));
+
+                // Update current user
+                const { password, ...userWithoutPassword } = users[userIndex];
+                this.currentUser = userWithoutPassword;
+                localStorage.setItem('chapter_currentUser', JSON.stringify(userWithoutPassword));
+
+                return { success: true, message: 'Profile berhasil diupdate', user: userWithoutPassword };
+            },
+
+            // ============= VERIFY CURRENT PASSWORD =============
+            verifyPassword: function(userId, password) {
+                const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
+                const user = users.find(u => u.id === userId);
+                return user && user.password === password;
+            },
+            
             // ============= UPDATE AVATAR =============
             updateAvatar: function(userId, avatarBase64) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
@@ -614,7 +680,6 @@
                     users[userIndex].avatar = avatarBase64;
                     localStorage.setItem('chapter_users', JSON.stringify(users));
                     
-                    // Update current user if it's the same user
                     if (this.currentUser && this.currentUser.id === userId) {
                         this.currentUser.avatar = avatarBase64;
                         localStorage.setItem('chapter_currentUser', JSON.stringify(this.currentUser));
@@ -678,10 +743,8 @@
                 if (!user) return [];
                 
                 if (level === 'direct') {
-                    // Hanya bawahan langsung
                     return users.filter(u => u.parentId === userId);
                 } else {
-                    // Semua bawahan (rekursif)
                     let downline = [];
                     const directDownline = users.filter(u => u.parentId === userId);
                     
@@ -813,7 +876,6 @@
                 }).sort((a, b) => b.currentWeekPoints - a.currentWeekPoints);
             },
 
-            // Fungsi untuk mendapatkan member per chapter
             getMembersByChapter: function(chapterName) {
                 const members = this.getAllMembers();
                 return members.filter(m => m.chapter === chapterName);
@@ -901,11 +963,342 @@
             );
         };
 
+        // ==================== EDIT PROFILE MODAL ====================
+        const EditProfileModal = ({ isOpen, onClose, currentUser, onUpdate }) => {
+            const [formData, setFormData] = React.useState({
+                name: currentUser?.name || '',
+                businessName: currentUser?.businessName || '',
+                businessDesc: currentUser?.businessDesc || '',
+                socialLinkedin: currentUser?.socialLinkedin || '',
+                socialInstagram: currentUser?.socialInstagram || '',
+                phone: currentUser?.phone || '',
+                email: currentUser?.email || '',
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            });
+            const [error, setError] = React.useState('');
+            const [success, setSuccess] = React.useState('');
+            const [loading, setLoading] = React.useState(false);
+            const [showPasswordFields, setShowPasswordFields] = React.useState(false);
+
+            React.useEffect(() => {
+                if (currentUser) {
+                    setFormData({
+                        name: currentUser.name || '',
+                        businessName: currentUser.businessName || '',
+                        businessDesc: currentUser.businessDesc || '',
+                        socialLinkedin: currentUser.socialLinkedin || '',
+                        socialInstagram: currentUser.socialInstagram || '',
+                        phone: currentUser.phone || '',
+                        email: currentUser.email || '',
+                        currentPassword: '',
+                        newPassword: '',
+                        confirmPassword: ''
+                    });
+                }
+            }, [currentUser]);
+
+            if (!isOpen) return null;
+
+            const handleChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+                setError('');
+                setSuccess('');
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setSuccess('');
+                setLoading(true);
+
+                try {
+                    // Validasi password jika ingin ganti password
+                    if (formData.newPassword || formData.confirmPassword) {
+                        if (!formData.currentPassword) {
+                            setError('Password saat ini harus diisi untuk mengganti password');
+                            setLoading(false);
+                            return;
+                        }
+
+                        // Verifikasi password saat ini
+                        const isValid = AppState.verifyPassword(currentUser.id, formData.currentPassword);
+                        if (!isValid) {
+                            setError('Password saat ini salah');
+                            setLoading(false);
+                            return;
+                        }
+
+                        if (formData.newPassword.length < 6) {
+                            setError('Password baru minimal 6 karakter');
+                            setLoading(false);
+                            return;
+                        }
+
+                        if (formData.newPassword !== formData.confirmPassword) {
+                            setError('Password baru tidak cocok');
+                            setLoading(false);
+                            return;
+                        }
+                    }
+
+                    // Siapkan data untuk diupdate
+                    const updateData = {
+                        name: formData.name,
+                        businessName: formData.businessName,
+                        businessDesc: formData.businessDesc,
+                        socialLinkedin: formData.socialLinkedin,
+                        socialInstagram: formData.socialInstagram,
+                        phone: formData.phone,
+                        email: formData.email
+                    };
+
+                    // Tambah password baru jika ada
+                    if (formData.newPassword) {
+                        updateData.newPassword = formData.newPassword;
+                    }
+
+                    const result = onUpdate(currentUser.id, updateData);
+                    
+                    if (result.success) {
+                        setSuccess('Profile berhasil diupdate!');
+                        setTimeout(() => {
+                            onClose();
+                        }, 1500);
+                    } else {
+                        setError(result.message);
+                    }
+                } catch (err) {
+                    setError('Terjadi kesalahan. Silakan coba lagi.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto edit-profile-modal" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                            <div className="flex items-center text-white">
+                                <i className="fas fa-edit mr-3 text-xl"></i>
+                                <h2 className="text-xl font-bold">Edit Profile</h2>
+                            </div>
+                            <button onClick={onClose} className="text-white hover:text-gray-200 transition">
+                                <i className="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                            {/* Info yang tidak bisa diedit */}
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <p className="text-sm text-blue-800 mb-2">
+                                    <i className="fas fa-info-circle mr-2"></i>
+                                    Info yang tidak bisa diubah:
+                                </p>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span className="text-gray-600">Role:</span>
+                                        <span className="ml-2 font-medium">{currentUser?.role}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-600">Badge:</span>
+                                        <span className="ml-2 font-medium">{currentUser?.badge}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-600">Chapter:</span>
+                                        <span className="ml-2 font-medium">{currentUser?.chapter}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-600">Kode Referral:</span>
+                                        <span className="ml-2 font-medium">{currentUser?.referralCode}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm border border-red-200">
+                                    <i className="fas fa-exclamation-circle mr-2"></i>{error}
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm border border-green-200">
+                                    <i className="fas fa-check-circle mr-2"></i>{success}
+                                </div>
+                            )}
+
+                            {/* Form Fields */}
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">No. HP *</label>
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nama Bisnis *</label>
+                                    <input
+                                        type="text"
+                                        name="businessName"
+                                        value={formData.businessName}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Bisnis</label>
+                                    <textarea
+                                        name="businessDesc"
+                                        value={formData.businessDesc}
+                                        onChange={handleChange}
+                                        rows="3"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+                                    <input
+                                        type="url"
+                                        name="socialLinkedin"
+                                        value={formData.socialLinkedin}
+                                        onChange={handleChange}
+                                        placeholder="https://linkedin.com/in/username"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+                                    <input
+                                        type="url"
+                                        name="socialInstagram"
+                                        value={formData.socialInstagram}
+                                        onChange={handleChange}
+                                        placeholder="https://instagram.com/username"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Password Change Section */}
+                            <div className="border-t pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasswordFields(!showPasswordFields)}
+                                    className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                                >
+                                    <i className={`fas fa-chevron-${showPasswordFields ? 'up' : 'down'} mr-2`}></i>
+                                    {showPasswordFields ? 'Sembunyikan' : 'Ganti Password'}
+                                </button>
+
+                                {showPasswordFields && (
+                                    <div className="mt-4 space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Password Saat Ini *</label>
+                                            <input
+                                                type="password"
+                                                name="currentPassword"
+                                                value={formData.currentPassword}
+                                                onChange={handleChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                                            <input
+                                                type="password"
+                                                name="newPassword"
+                                                value={formData.newPassword}
+                                                onChange={handleChange}
+                                                minLength="6"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                                            <input
+                                                type="password"
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex space-x-4 pt-4">
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    className="flex-1 py-3"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <><i className="fas fa-spinner fa-spin mr-2"></i>Menyimpan...</>
+                                    ) : (
+                                        <><i className="fas fa-save mr-2"></i>Simpan Perubahan</>
+                                    )}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={onClose}
+                                    className="px-6"
+                                >
+                                    Batal
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
         // ==================== MODAL PROFIL MEMBER ====================
         const MemberProfileModal = ({ member, isOpen, onClose }) => {
             if (!isOpen || !member) return null;
 
-            // Dapatkan upline dan downline
             const upline = AppState.getUpline(member.id);
             const downline = AppState.getDownline(member.id, 'direct');
 
@@ -971,7 +1364,6 @@
                                         <span className="font-semibold text-blue-600">{member.referralCode}</span>
                                     </div>
                                     
-                                    {/* Upline (Atasan) */}
                                     {upline.length > 0 && (
                                         <div className="py-2">
                                             <span className="text-gray-700 font-medium block mb-2">Atasan:</span>
@@ -985,7 +1377,6 @@
                                         </div>
                                     )}
                                     
-                                    {/* Downline (Bawahan) */}
                                     {downline.length > 0 && (
                                         <div className="py-2">
                                             <span className="text-gray-700 font-medium block mb-2">Bawahan Langsung ({downline.length}):</span>
@@ -1093,6 +1484,7 @@
             );
         };
 
+        // ==================== KPI CARD DENGAN BUTTON +/- ====================
         const KPICard = ({ kpi, onUpdate, disabled = false }) => {
             const getIcon = (id) => {
                 switch(id) {
@@ -1105,6 +1497,35 @@
                 }
             };
 
+            const handleIncrement = () => {
+                if (disabled) return;
+                
+                if (kpi.targetHours !== undefined) {
+                    const newValue = Math.min(kpi.achievedHours + 0.5, kpi.targetHours * 2);
+                    onUpdate(kpi.id, newValue, 'hours');
+                } else if (kpi.targetCount !== undefined) {
+                    const newValue = Math.min(kpi.achievedCount + 1, kpi.targetCount * 2);
+                    onUpdate(kpi.id, newValue, 'count');
+                }
+            };
+
+            const handleDecrement = () => {
+                if (disabled) return;
+                
+                if (kpi.targetHours !== undefined) {
+                    const newValue = Math.max(kpi.achievedHours - 0.5, 0);
+                    onUpdate(kpi.id, newValue, 'hours');
+                } else if (kpi.targetCount !== undefined) {
+                    const newValue = Math.max(kpi.achievedCount - 1, 0);
+                    onUpdate(kpi.id, newValue, 'count');
+                }
+            };
+
+            const currentValue = kpi.targetHours !== undefined ? kpi.achievedHours : kpi.achievedCount;
+            const targetValue = kpi.targetHours !== undefined ? kpi.targetHours : kpi.targetCount;
+            const unit = kpi.targetHours !== undefined ? 'jam' : 'org';
+            const percentage = Math.round((currentValue / targetValue) * 100);
+
             return (
                 <div className={`rounded-xl p-4 ${kpi.completed ? 'kpi-card-completed' : 'kpi-card-pending'} border ${kpi.completed ? 'border-green-200' : 'border-orange-200'}`}>
                     <div className="flex items-center justify-between mb-3">
@@ -1114,7 +1535,7 @@
                             </div>
                             <div className="ml-3">
                                 <h3 className="font-semibold text-gray-900">{kpi.name}</h3>
-                                <p className="text-xs text-gray-600">Target: {kpi.target}</p>
+                                <p className="text-xs text-gray-600">Target: {targetValue} {unit}</p>
                             </div>
                         </div>
                         <div className="text-right">
@@ -1125,53 +1546,78 @@
                         </div>
                     </div>
                     
-                    {kpi.targetHours && (
-                        <div className="mt-3">
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="text-gray-600">Progress</span>
-                                <span className="font-medium">{kpi.achievedHours} / {kpi.targetHours} jam</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <input 
-                                    type="range" 
-                                    min="0" 
-                                    max={kpi.targetHours * 2} 
-                                    step="0.5"
-                                    value={kpi.achievedHours}
-                                    onChange={(e) => onUpdate(kpi.id, parseFloat(e.target.value), 'hours')}
-                                    disabled={disabled}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
-                                />
-                                <span className="text-sm font-medium w-12 text-blue-600">
-                                    {(kpi.achievedHours / kpi.targetHours * 100).toFixed(0)}%
-                                </span>
-                            </div>
+                    <div className="mt-3">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-gray-600">Progress</span>
+                            <span className="text-sm font-medium">
+                                {currentValue} / {targetValue} {unit} ({percentage}%)
+                            </span>
                         </div>
-                    )}
-                    
-                    {kpi.targetCount && (
-                        <div className="mt-3">
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="text-gray-600">Progress</span>
-                                <span className="font-medium">{kpi.achievedCount} / {kpi.targetCount} org</span>
+                        
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={handleDecrement}
+                                disabled={disabled || currentValue <= 0}
+                                className={`kpi-button w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold
+                                    ${disabled || currentValue <= 0 
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-red-500 text-white hover:bg-red-600'}`}
+                            >
+                                -
+                            </button>
+                            
+                            {/* Progress bar */}
+                            <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div 
+                                    className={`h-full ${kpi.completed ? 'bg-green-500' : 'bg-orange-500'}`}
+                                    style={{ width: `${percentage}%` }}
+                                ></div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <input 
-                                    type="range" 
-                                    min="0" 
-                                    max={kpi.targetCount * 2}
-                                    step="1"
-                                    value={kpi.achievedCount}
-                                    onChange={(e) => onUpdate(kpi.id, parseInt(e.target.value), 'count')}
-                                    disabled={disabled}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
-                                />
-                                <span className="text-sm font-medium w-12 text-blue-600">
-                                    {(kpi.achievedCount / kpi.targetCount * 100).toFixed(0)}%
-                                </span>
-                            </div>
+                            
+                            <button
+                                onClick={handleIncrement}
+                                disabled={disabled || currentValue >= targetValue * 2}
+                                className={`kpi-button w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold
+                                    ${disabled || currentValue >= targetValue * 2
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                                        : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                            >
+                                +
+                            </button>
                         </div>
-                    )}
+
+                        {/* Quick buttons untuk mencapai target */}
+                        {!kpi.completed && (
+                            <div className="flex justify-end mt-2 space-x-2">
+                                <button
+                                    onClick={() => {
+                                        if (kpi.targetHours) {
+                                            onUpdate(kpi.id, targetValue, 'hours');
+                                        } else {
+                                            onUpdate(kpi.id, targetValue, 'count');
+                                        }
+                                    }}
+                                    disabled={disabled}
+                                    className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition"
+                                >
+                                    Capai Target ({targetValue} {unit})
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (kpi.targetHours) {
+                                            onUpdate(kpi.id, targetValue * 2, 'hours');
+                                        } else {
+                                            onUpdate(kpi.id, targetValue * 2, 'count');
+                                        }
+                                    }}
+                                    disabled={disabled}
+                                    className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition"
+                                >
+                                    Double ({targetValue * 2} {unit})
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             );
         };
@@ -1316,7 +1762,7 @@
                 password: '',
                 confirmPassword: '',
                 referralCode: '',
-                chapter: 'Jakarta 1'  // Default chapter
+                chapter: 'Jakarta 1'
             });
             const [avatar, setAvatar] = React.useState(null);
             const [avatarPreview, setAvatarPreview] = React.useState(null);
@@ -1325,7 +1771,6 @@
             const [uploading, setUploading] = React.useState(false);
             const fileInputRef = React.useRef();
 
-            // Dapatkan daftar chapter dari localStorage
             const [chapters, setChapters] = React.useState([]);
 
             React.useEffect(() => {
@@ -1378,7 +1823,6 @@
                     return;
                 }
 
-                // Add avatar to form data if uploaded
                 const submitData = {
                     ...formData,
                     avatar: avatar || undefined
@@ -1579,6 +2023,7 @@
         const MemberDashboard = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
             const [avatar, setAvatar] = React.useState(currentUser?.avatar);
+            const [showEditProfile, setShowEditProfile] = React.useState(false);
             const weekKPI = state.getCurrentWeekKPI(currentUser?.id);
             const kpiSummary = state.getMemberKPISummary(currentUser?.id);
             const weekInfo = getWeekRange();
@@ -1598,29 +2043,47 @@
                 currentUser.avatar = newAvatar;
             };
 
+            const handleProfileUpdate = (userId, updateData) => {
+                const result = state.updateProfile(userId, updateData);
+                if (result.success) {
+                    setAvatar(result.user.avatar);
+                }
+                return result;
+            };
+
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             return (
                 <div className="max-w-7xl mx-auto px-4 pb-24 pt-4">
                     {/* Header Profile with Avatar Upload */}
-                    <div className="flex items-center space-x-4 mb-6">
-                        <AvatarUpload currentUser={{...currentUser, avatar}} onAvatarUpdate={handleAvatarUpdate} />
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{currentUser?.name}</h1>
-                            <div className="flex items-center mt-1">
-                                <span className={`text-xs px-3 py-1 rounded-full ${
-                                    currentUser?.badge === 'Champion' 
-                                        ? 'bg-yellow-100 text-yellow-800' 
-                                        : 'bg-blue-100 text-blue-800'
-                                }`}>
-                                    {currentUser?.badge}
-                                </span>
-                                <span className="text-sm text-gray-600 ml-3">
-                                    <i className="fas fa-building mr-1"></i>{currentUser?.businessName}
-                                </span>
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-4">
+                            <AvatarUpload currentUser={{...currentUser, avatar}} onAvatarUpdate={handleAvatarUpdate} />
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">{currentUser?.name}</h1>
+                                <div className="flex items-center mt-1">
+                                    <span className={`text-xs px-3 py-1 rounded-full ${
+                                        currentUser?.badge === 'Champion' 
+                                            ? 'bg-yellow-100 text-yellow-800' 
+                                            : 'bg-blue-100 text-blue-800'
+                                    }`}>
+                                        {currentUser?.badge}
+                                    </span>
+                                    <span className="text-sm text-gray-600 ml-3">
+                                        <i className="fas fa-building mr-1"></i>{currentUser?.businessName}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Klik foto untuk ganti avatar</p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Klik foto untuk ganti avatar</p>
                         </div>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setShowEditProfile(true)}
+                            className="flex items-center"
+                        >
+                            <i className="fas fa-edit mr-2"></i>
+                            Edit Profile
+                        </Button>
                     </div>
 
                     {/* Business Contact Card */}
@@ -1703,7 +2166,7 @@
                         </Card>
                     </div>
 
-                    {/* Current Week KPI */}
+                    {/* Current Week KPI - DENGAN BUTTON +/- */}
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-gray-900">
@@ -1764,6 +2227,14 @@
                             ))}
                         </div>
                     </div>
+
+                    {/* Edit Profile Modal */}
+                    <EditProfileModal
+                        isOpen={showEditProfile}
+                        onClose={() => setShowEditProfile(false)}
+                        currentUser={{...currentUser, avatar}}
+                        onUpdate={handleProfileUpdate}
+                    />
                 </div>
             );
         };
@@ -1821,6 +2292,7 @@
         const SuperAdminDashboard = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
             const [avatar, setAvatar] = React.useState(currentUser?.avatar);
+            const [showEditProfile, setShowEditProfile] = React.useState(false);
             const allMembers = state.getAllMembers();
             const chapterSummary = state.getChapterSummary();
             const allMembersKPI = state.getAllMembersKPI();
@@ -1830,6 +2302,14 @@
             const handleAvatarUpdate = (newAvatar) => {
                 setAvatar(newAvatar);
                 currentUser.avatar = newAvatar;
+            };
+
+            const handleProfileUpdate = (userId, updateData) => {
+                const result = state.updateProfile(userId, updateData);
+                if (result.success) {
+                    setAvatar(result.user.avatar);
+                }
+                return result;
             };
 
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
@@ -1848,9 +2328,19 @@
                                 <p className="text-xs text-gray-500">Klik foto untuk ganti avatar</p>
                             </div>
                         </div>
-                        <div className="bg-purple-100 px-4 py-2 rounded-full">
-                            <i className="fas fa-crown text-purple-600 mr-2"></i>
-                            <span className="font-semibold text-purple-800">Super Admin</span>
+                        <div className="flex items-center space-x-3">
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setShowEditProfile(true)}
+                                className="flex items-center"
+                            >
+                                <i className="fas fa-edit mr-2"></i>
+                                Edit Profile
+                            </Button>
+                            <div className="bg-purple-100 px-4 py-2 rounded-full">
+                                <i className="fas fa-crown text-purple-600 mr-2"></i>
+                                <span className="font-semibold text-purple-800">Super Admin</span>
+                            </div>
                         </div>
                     </div>
 
@@ -1997,6 +2487,14 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* Edit Profile Modal */}
+                    <EditProfileModal
+                        isOpen={showEditProfile}
+                        onClose={() => setShowEditProfile(false)}
+                        currentUser={{...currentUser, avatar}}
+                        onUpdate={handleProfileUpdate}
+                    />
                 </div>
             );
         };
@@ -2004,24 +2502,20 @@
         // ==================== LEADERBOARD PAGE DENGAN FILTER ====================
         const LeaderboardPage = ({ state }) => {
             const [searchTerm, setSearchTerm] = React.useState('');
-            const [filterBy, setFilterBy] = React.useState('all'); // all, champion, member
+            const [filterBy, setFilterBy] = React.useState('all');
             const [chapterFilter, setChapterFilter] = React.useState('all');
             const allMembersKPI = state.getAllMembersKPI();
             const weekInfo = getWeekRange();
             const chapters = state.getChapters();
 
-            // Filter members based on search, badge, and chapter
             const filteredMembers = allMembersKPI.filter(member => {
-                // Search filter
                 const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                      member.businessName.toLowerCase().includes(searchTerm.toLowerCase());
                 
-                // Badge filter
                 let matchesBadge = true;
                 if (filterBy === 'champion') matchesBadge = member.badge === 'Champion';
                 if (filterBy === 'member') matchesBadge = member.badge === 'Member';
                 
-                // Chapter filter
                 const matchesChapter = chapterFilter === 'all' || member.chapter === chapterFilter;
                 
                 return matchesSearch && matchesBadge && matchesChapter;
@@ -2035,7 +2529,6 @@
                     {/* Filter Section */}
                     <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
                         <div className="flex flex-col md:flex-row gap-4">
-                            {/* Search Input */}
                             <div className="flex-1">
                                 <div className="relative">
                                     <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -2049,7 +2542,6 @@
                                 </div>
                             </div>
                             
-                            {/* Badge Filter */}
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setFilterBy('all')}
@@ -2083,7 +2575,6 @@
                                 </button>
                             </div>
 
-                            {/* Chapter Filter */}
                             <div className="md:min-w-[200px]">
                                 <select
                                     value={chapterFilter}
@@ -2100,13 +2591,11 @@
                             </div>
                         </div>
                         
-                        {/* Result Count */}
                         <div className="mt-3 text-sm text-gray-600">
                             Menampilkan {filteredMembers.length} dari {allMembersKPI.length} member
                         </div>
                     </div>
                     
-                    {/* Leaderboard List dengan Scroll */}
                     <div className="leaderboard-container">
                         <div className="space-y-3 pr-2">
                             {filteredMembers.length > 0 ? (
@@ -2114,7 +2603,7 @@
                                     <MemberLeaderboardCard 
                                         key={member.id} 
                                         member={member} 
-                                        rank={allMembersKPI.findIndex(m => m.id === member.id) + 1} // Original rank
+                                        rank={allMembersKPI.findIndex(m => m.id === member.id) + 1}
                                     />
                                 ))
                             ) : (
@@ -2138,6 +2627,7 @@
         // ==================== PROFILE PAGE ====================
         const ProfilePage = ({ currentUser }) => {
             const [avatar, setAvatar] = React.useState(currentUser?.avatar);
+            const [showEditProfile, setShowEditProfile] = React.useState(false);
             const downline = AppState.getDownline(currentUser.id, 'direct');
             const totalDownline = AppState.getDownline(currentUser.id, 'all').length;
             const upline = AppState.getUpline(currentUser.id);
@@ -2147,9 +2637,27 @@
                 currentUser.avatar = newAvatar;
             };
 
+            const handleProfileUpdate = (userId, updateData) => {
+                const result = AppState.updateProfile(userId, updateData);
+                if (result.success) {
+                    setAvatar(result.user.avatar);
+                }
+                return result;
+            };
+
             return (
                 <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile Saya</h1>
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold text-gray-900">Profile Saya</h1>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setShowEditProfile(true)}
+                            className="flex items-center"
+                        >
+                            <i className="fas fa-edit mr-2"></i>
+                            Edit Profile
+                        </Button>
+                    </div>
                     
                     <Card className="mb-6">
                         <div className="flex flex-col md:flex-row md:items-center">
@@ -2293,6 +2801,14 @@
                             </div>
                         </Card>
                     </div>
+
+                    {/* Edit Profile Modal */}
+                    <EditProfileModal
+                        isOpen={showEditProfile}
+                        onClose={() => setShowEditProfile(false)}
+                        currentUser={{...currentUser, avatar}}
+                        onUpdate={handleProfileUpdate}
+                    />
                 </div>
             );
         };
