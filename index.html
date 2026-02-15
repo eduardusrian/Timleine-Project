@@ -207,7 +207,7 @@
         @media (max-width: 640px) {
             .notification-dropdown {
                 position: fixed !important;
-                top: 60px !important;
+                top: 70px !important;
                 right: 10px !important;
                 left: 10px !important;
                 width: auto !important;
@@ -270,12 +270,14 @@
             color: #7c3aed;
         }
 
-        /* Event Flyer Image */
-        .event-flyer {
-            max-height: 200px;
+        /* Event Flyer Thumbnail - KECIL DI POJOK */
+        .event-flyer-thumbnail {
+            width: 60px;
+            height: 60px;
             object-fit: cover;
             border-radius: 0.5rem;
-            width: 100%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .flyer-preview {
@@ -284,6 +286,21 @@
             border-radius: 0.5rem;
             border: 2px dashed #cbd5e0;
             padding: 0.25rem;
+        }
+
+        /* Sticky Header dengan padding yang pas */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 0.75rem 1rem;
+        }
+
+        /* Content padding top untuk mengimbangi header */
+        .content-with-sticky-header {
+            padding-top: 0.5rem;
         }
     </style>
 </head>
@@ -1907,7 +1924,7 @@
             );
         };
 
-        // ==================== EVENT CARD COMPONENT DENGAN FLYER ====================
+        // ==================== EVENT CARD DENGAN FLYER THUMBNAIL DI POJOK ====================
         const EventCard = ({ event, currentUser, onJoin, onLeave, onDelete }) => {
             const [isJoined, setIsJoined] = React.useState(event.attendees?.includes(currentUser?.id));
             const [showDetails, setShowDetails] = React.useState(false);
@@ -1941,8 +1958,8 @@
 
             return (
                 <Card className={`event-card overflow-hidden ${showDetails ? 'ring-2 ring-purple-400' : ''} ${isExpired ? 'opacity-75' : ''}`}>
-                    {/* Header dengan warna berdasarkan metode */}
-                    <div className={`-mx-4 -mt-4 px-4 sm:-mx-5 sm:-mt-5 sm:px-5 py-3 mb-4 ${
+                    {/* Header dengan warna berdasarkan metode dan FLYER THUMBNAIL di pojok kanan */}
+                    <div className={`relative -mx-4 -mt-4 px-4 sm:-mx-5 sm:-mt-5 sm:px-5 py-3 mb-4 ${
                         event.method === 'online' ? 'event-method-online' : 'event-method-offline'
                     } text-white`}>
                         <div className="flex justify-between items-center">
@@ -1959,30 +1976,31 @@
                                     </span>
                                 )}
                             </div>
-                            {currentUser?.role === 'super_admin' && !isExpired && (
-                                <button
-                                    onClick={() => onDelete(event.id)}
-                                    className="text-white hover:text-red-200 transition"
-                                >
-                                    <i className="fas fa-trash"></i>
-                                </button>
-                            )}
+                            <div className="flex items-center space-x-2">
+                                {/* FLYER THUMBNAIL - KECIL DI POJOK KANAN */}
+                                {event.flyer && (
+                                    <img 
+                                        src={event.flyer} 
+                                        alt="Flyer" 
+                                        className="event-flyer-thumbnail w-12 h-12 sm:w-14 sm:h-14 rounded-lg border-2 border-white shadow-md object-cover"
+                                        title="Klik untuk preview"
+                                        onClick={() => window.open(event.flyer, '_blank')}
+                                    />
+                                )}
+                                {currentUser?.role === 'super_admin' && !isExpired && (
+                                    <button
+                                        onClick={() => onDelete(event.id)}
+                                        className="text-white hover:text-red-200 transition ml-2"
+                                    >
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
                     {/* Content */}
                     <div className="space-y-3">
-                        {/* Flyer Image - Jika ada */}
-                        {event.flyer && (
-                            <div className="-mx-4 -mt-2 mb-4 sm:-mx-5">
-                                <img 
-                                    src={event.flyer} 
-                                    alt={`Flyer ${event.title}`} 
-                                    className="event-flyer w-full max-h-48 object-cover"
-                                />
-                            </div>
-                        )}
-
                         <div>
                             <h3 className="text-base sm:text-lg font-bold text-gray-900">{event.title}</h3>
                             {event.speaker && (
@@ -3226,7 +3244,7 @@
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-4">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     {/* Header Profile with Avatar Upload */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
@@ -3536,7 +3554,7 @@
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-4">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
@@ -3799,7 +3817,7 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Events</h1>
                     <p className="text-sm text-gray-600 mb-6">Daftar event chapter</p>
 
@@ -3886,7 +3904,7 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-0">Notifikasi</h1>
                         {notifications.some(n => !n.isRead) && (
@@ -3974,7 +3992,7 @@
             });
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Leaderboard</h1>
                     <p className="text-sm text-gray-600 mb-4">Minggu {weekInfo.weekNumber} • {weekInfo.startFormatted} - {weekInfo.endFormatted}</p>
                     
@@ -4104,7 +4122,7 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24 pt-6">
+                <div className="max-w-7xl mx-auto px-4 pb-24 content-with-sticky-header">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-0">Profile Saya</h1>
                         <Button 
@@ -4428,7 +4446,8 @@
 
             return (
                 <>
-                    <nav className="bg-white shadow-sm sticky top-0 z-40 px-4 py-3">
+                    {/* STICKY HEADER - FROZEN */}
+                    <nav className="bg-white shadow-sm sticky-header">
                         <div className="flex justify-between items-center max-w-7xl mx-auto">
                             <div className="flex items-center min-w-0">
                                 <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent truncate">
