@@ -22,6 +22,8 @@
             position: relative;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
         }
         
         #root {
@@ -29,15 +31,147 @@
             overflow-x: hidden;
         }
         
-        .bottom-nav-shadow { box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
+        /* STICKY HEADER */
+        .sticky-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 0.75rem 1rem;
+            width: 100%;
+        }
+
+        .main-content {
+            padding-top: 70px;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding-top: 65px;
+            }
+        }
+
+        /* Side menu */
+        .side-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 320px;
+            background-color: white;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+            z-index: 1100;
+            overflow-y: auto;
+        }
+
+        .side-menu.open {
+            transform: translateX(0);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Notification dropdown */
+        .notification-dropdown {
+            position: fixed !important;
+            top: 70px !important;
+            right: 10px !important;
+            width: 320px;
+            max-width: calc(100vw - 20px);
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1200;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 640px) {
+            .notification-dropdown {
+                top: 65px !important;
+                right: 5px !important;
+                left: 5px !important;
+                width: auto !important;
+            }
+        }
+
+        /* KPI Card Styles */
         .kpi-card-completed { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
         .kpi-card-pending { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+        
+        /* MODAL OVERLAY - FIXED VERSION */
         .modal-overlay {
-            background-color: rgba(0,0,0,0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999 !important;
+            padding: 1rem;
         }
         
-        /* Leaderboard Container Responsif */
+        .modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            max-width: 42rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            z-index: 1000000 !important;
+        }
+
+        /* Chapter Card Clickable */
+        .chapter-card {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chapter-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .chapter-card:active {
+            transform: translateY(0);
+        }
+
+        /* Member List Item */
+        .member-list-item {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .member-list-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* Leaderboard Container */
         .leaderboard-container {
             max-height: calc(100vh - 300px);
             overflow-y: auto;
@@ -153,37 +287,6 @@
         .menu-toggle-button:hover {
             transform: scale(1.1);
         }
-        .menu-toggle-button.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            color: white;
-        }
-        
-        /* Side Menu */
-        .side-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-        .side-menu.open {
-            transform: translateX(0);
-        }
-        
-        /* Overlay */
-        .menu-overlay {
-            transition: opacity 0.3s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .menu-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        /* Responsive Side Menu */
-        @media (max-width: 640px) {
-            .side-menu {
-                width: 85%;
-            }
-        }
         
         /* PRIMA+ Logo */
         .prima-logo {
@@ -201,19 +304,7 @@
             border-top: 1px solid #e5e7eb;
             background: white;
             margin-top: 2rem;
-        }
-        
-        /* Notification Dropdown Responsif */
-        @media (max-width: 640px) {
-            .notification-dropdown {
-                position: fixed !important;
-                top: 70px !important;
-                right: 10px !important;
-                left: 10px !important;
-                width: auto !important;
-                max-width: none !important;
-                margin: 0 !important;
-            }
+            padding: 1.5rem 1rem;
         }
         
         /* Table Responsif */
@@ -226,34 +317,6 @@
         
         .table-container table {
             min-width: 800px;
-        }
-        
-        /* Card Responsif */
-        @media (max-width: 640px) {
-            .card-padding {
-                padding: 1rem;
-            }
-            
-            .grid-cols-responsive {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .text-responsive {
-                font-size: 0.875rem;
-            }
-            
-            .hide-on-mobile {
-                display: none;
-            }
-        }
-        
-        /* Week Info Card */
-        .week-info-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
         }
         
         /* Cut Off Info */
@@ -270,7 +333,7 @@
             color: #7c3aed;
         }
 
-        /* Event Flyer Thumbnail - KECIL DI POJOK */
+        /* Event Flyer Thumbnail */
         .event-flyer-thumbnail {
             width: 60px;
             height: 60px;
@@ -293,34 +356,13 @@
             padding: 0.25rem;
         }
 
-        /* STICKY HEADER - FROZEN dengan padding yang pas */
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background-color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            padding: 0.75rem 1rem;
-            width: 100%;
-        }
-
-        /* Container untuk konten utama dengan padding-top yang pas */
-        .main-content {
-            min-height: calc(100vh - 64px); /* kurangi tinggi header */
-            padding-top: 1rem;
-            padding-bottom: 2rem;
-        }
-
-        /* Fix untuk padding di mobile */
-        @media (max-width: 640px) {
-            .main-content {
-                padding-top: 0.75rem;
-            }
-        }
-
-        /* Fix untuk notifikasi dropdown agar tidak ketutupan header */
-        .notification-dropdown {
-            top: 60px !important;
+        /* Container max-width */
+        .content-container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
         }
     </style>
 </head>
@@ -329,7 +371,7 @@
 
     <script type="text/babel">
         // -------------------------------------------------------------------
-        // CHAPTER KPI TRACKER - WITH STICKY HEADER FIX
+        // CHAPTER KPI TRACKER - FIXED VERSION WITH WORKING MODAL
         // -------------------------------------------------------------------
         
         // === CLEAR ALL OLD DATA - FRESH START ===
@@ -351,7 +393,6 @@
             const sunday = new Date(monday);
             sunday.setDate(monday.getDate() + 6);
             
-            // Format tanggal Indonesia
             const formatDate = (date) => {
                 return date.toLocaleDateString('id-ID', { 
                     day: 'numeric', 
@@ -368,13 +409,11 @@
                 weekNumber: getWeekNumber(monday),
                 startFormatted: formatDate(monday),
                 endFormatted: formatDate(sunday),
-                // Info cut-off: Senin 00:00 - Minggu 23:59
                 cutoffStart: 'Senin, 00:00 WIB',
                 cutoffEnd: 'Minggu, 23:59 WIB'
             };
         }
 
-        // Function to convert image file to base64
         const fileToBase64 = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -384,14 +423,12 @@
             });
         };
 
-        // Generate referral code otomatis
         function generateReferralCode(name, userId) {
             const namePart = name.replace(/\s/g, '').substring(0, 4).toUpperCase();
             const uniqueId = userId.toString().padStart(3, '0');
             return `${namePart}${uniqueId}`;
         }
 
-        // Daftar chapter yang tersedia
         const availableChapters = [
             { id: 'JKT1', name: 'Jakarta 1', region: 'Jakarta', leader: null, members: [] },
             { id: 'JKT2', name: 'Jakarta 2', region: 'Jakarta', leader: null, members: [] },
@@ -403,17 +440,13 @@
             { id: 'MAK1', name: 'Makassar 1', region: 'Makassar', leader: null, members: [] }
         ];
 
-        // Simpan daftar chapter ke localStorage
         localStorage.setItem('available_chapters', JSON.stringify(availableChapters));
 
-        // Default avatar function
         const getDefaultAvatar = (name) => {
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563eb&color=fff&size=128`;
         };
         
-        // ============= INITIAL DATA - FRESH =============
-        
-        // 1. SUPER ADMIN
+        // ============= INITIAL DATA =============
         const superAdmin = {
             id: 1,
             name: 'Rizky Fadillah',
@@ -441,7 +474,6 @@
             chapterRole: 'super_admin'
         };
 
-        // 2. MEMBERS
         const members = [
             {
                 id: 2,
@@ -627,13 +659,9 @@
             }
         ];
 
-        // === GABUNGIN SEMUA USER ===
         const allUsers = [superAdmin, ...members];
-        
-        // === SAVE KE LOCALSTORAGE ===
         localStorage.setItem('chapter_users', JSON.stringify(allUsers));
 
-        // Update chapter members
         const updateChapterMembers = () => {
             const chapters = JSON.parse(localStorage.getItem('available_chapters')) || [];
             chapters.forEach(chapter => {
@@ -641,7 +669,6 @@
                     .filter(user => user.chapter === chapter.name && user.role === 'member')
                     .map(user => user.id);
                 
-                // Tentukan leader untuk setiap chapter (member dengan badge Champion tertua)
                 const chapterMembers = allUsers.filter(user => user.chapter === chapter.name);
                 const champion = chapterMembers.find(user => user.badge === 'Champion');
                 if (champion) {
@@ -652,11 +679,9 @@
         };
         updateChapterMembers();
 
-        // === INIT KPI DATA ===
         const weekInfo = getWeekRange();
         
         const kpiData = [
-            // Dimas's KPI - Current Week (100%)
             {
                 id: 1,
                 userId: 2,
@@ -674,7 +699,6 @@
                 maxPoints: 100,
                 percentage: 100
             },
-            // Sinta's KPI - Current Week (80%)
             {
                 id: 2,
                 userId: 3,
@@ -692,7 +716,6 @@
                 maxPoints: 100,
                 percentage: 80
             },
-            // Bambang's KPI - Current Week (60%)
             {
                 id: 3,
                 userId: 4,
@@ -710,7 +733,6 @@
                 maxPoints: 100,
                 percentage: 60
             },
-            // Maya's KPI - Current Week (40%)
             {
                 id: 4,
                 userId: 5,
@@ -728,7 +750,6 @@
                 maxPoints: 100,
                 percentage: 40
             },
-            // Agus's KPI - Current Week (20%)
             {
                 id: 5,
                 userId: 6,
@@ -746,7 +767,6 @@
                 maxPoints: 100,
                 percentage: 20
             },
-            // Rina's KPI - Current Week (20%)
             {
                 id: 6,
                 userId: 7,
@@ -764,7 +784,6 @@
                 maxPoints: 100,
                 percentage: 20
             },
-            // Dedi's KPI - Current Week (0%)
             {
                 id: 7,
                 userId: 8,
@@ -786,7 +805,6 @@
 
         localStorage.setItem('chapter_kpi', JSON.stringify(kpiData));
 
-        // === INIT EVENT DATA ===
         const initialEvents = [
             {
                 id: 1,
@@ -805,7 +823,7 @@
             },
             {
                 id: 2,
-                title: 'Trial Networking Night',
+                title: 'BNI Networking Night',
                 date: '2026-02-25',
                 time: '18:30',
                 speaker: 'Dimas Prayoga',
@@ -813,7 +831,7 @@
                 location: 'Hotel Indonesia Kempinski',
                 address: 'Jl. M.H. Thamrin No.1, Jakarta Pusat',
                 mapLink: 'https://maps.app.goo.gl/xyz',
-                description: 'Networking session antar member Trial',
+                description: 'Networking session antar member BNI',
                 createdBy: 1,
                 createdAt: '2026-02-13',
                 attendees: [2, 4, 5, 8],
@@ -824,11 +842,10 @@
 
         localStorage.setItem('chapter_events', JSON.stringify(initialEvents));
 
-        // === INIT NOTIFICATIONS ===
         const initialNotifications = [
             {
                 id: 1,
-                userId: null, // null berarti untuk semua user
+                userId: null,
                 type: 'event',
                 eventId: 1,
                 title: 'Event Baru: Weekly Chapter Meeting',
@@ -841,7 +858,7 @@
                 userId: null,
                 type: 'event',
                 eventId: 2,
-                title: 'Event Baru: Trial Networking Night',
+                title: 'Event Baru: BNI Networking Night',
                 message: 'Networking Night akan diadakan pada 25 Februari 2026',
                 isRead: false,
                 createdAt: '2026-02-13'
@@ -854,7 +871,6 @@
         const AppState = {
             currentUser: null,
             
-            // ============= AUTH =============
             login: function(email, password) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.email === email && u.password === password);
@@ -878,7 +894,6 @@
                 localStorage.removeItem('chapter_currentUser');
             },
             
-            // ============= REGISTER DENGAN CHAPTER =============
             register: function(formData) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 
@@ -886,7 +901,6 @@
                     return { success: false, message: 'Email sudah terdaftar' };
                 }
 
-                // Validasi referral code jika diisi
                 let referrer = null;
                 if (formData.referralCode) {
                     referrer = users.find(u => u.referralCode === formData.referralCode);
@@ -927,7 +941,6 @@
                 users.push(newUser);
                 localStorage.setItem('chapter_users', JSON.stringify(users));
 
-                // Update parent's children
                 if (newUser.parentId) {
                     const parent = users.find(u => u.id === newUser.parentId);
                     if (parent) {
@@ -936,7 +949,6 @@
                     }
                 }
 
-                // Update chapter members
                 const chapters = JSON.parse(localStorage.getItem('available_chapters')) || [];
                 const targetChapter = chapters.find(c => c.name === newUser.chapter);
                 if (targetChapter) {
@@ -947,20 +959,17 @@
                 return { success: true, message: 'Registrasi berhasil! Silakan login.' };
             },
             
-            // ============= UPDATE PROFILE =============
             updateProfile: function(userId, updatedData) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const userIndex = users.findIndex(u => u.id === userId);
                 
                 if (userIndex === -1) return { success: false, message: 'User tidak ditemukan' };
 
-                // Cek email unik (kecuali email sendiri)
                 const emailExists = users.some(u => u.email === updatedData.email && u.id !== userId);
                 if (emailExists) {
                     return { success: false, message: 'Email sudah digunakan user lain' };
                 }
 
-                // Update data yang boleh diubah
                 const updatableFields = [
                     'name', 'businessName', 'businessDesc', 'socialLinkedin', 
                     'socialInstagram', 'phone', 'email', 'avatar'
@@ -972,15 +981,12 @@
                     }
                 });
 
-                // Update password jika diisi
                 if (updatedData.newPassword && updatedData.newPassword.length >= 6) {
                     users[userIndex].password = updatedData.newPassword;
                 }
 
-                // Simpan ke localStorage
                 localStorage.setItem('chapter_users', JSON.stringify(users));
 
-                // Update current user
                 const { password, ...userWithoutPassword } = users[userIndex];
                 this.currentUser = userWithoutPassword;
                 localStorage.setItem('chapter_currentUser', JSON.stringify(userWithoutPassword));
@@ -988,14 +994,12 @@
                 return { success: true, message: 'Profile berhasil diupdate', user: userWithoutPassword };
             },
 
-            // ============= VERIFY CURRENT PASSWORD =============
             verifyPassword: function(userId, password) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.id === userId);
                 return user && user.password === password;
             },
             
-            // ============= UPDATE AVATAR =============
             updateAvatar: function(userId, avatarBase64) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const userIndex = users.findIndex(u => u.id === userId);
@@ -1014,7 +1018,6 @@
                 return false;
             },
             
-            // ============= MEMBER PROFILE =============
             getMemberById: function(userId) {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.id === userId);
@@ -1060,7 +1063,6 @@
                 };
             },
             
-            // ============= HIERARCHY FUNCTIONS =============
             getDownline: function(userId, level = 'all') {
                 const users = JSON.parse(localStorage.getItem('chapter_users')) || [];
                 const user = users.find(u => u.id === userId);
@@ -1102,7 +1104,6 @@
                 return upline;
             },
             
-            // ============= KPI FUNCTIONS =============
             getCurrentWeekKPI: function(userId) {
                 const kpiData = JSON.parse(localStorage.getItem('chapter_kpi')) || [];
                 const currentWeek = getWeekRange().weekNumber;
@@ -1205,7 +1206,6 @@
                 return members.filter(m => m.chapter === chapterName);
             },
 
-            // ============= EVENT FUNCTIONS =============
             getEvents: function() {
                 return JSON.parse(localStorage.getItem('chapter_events')) || [];
             },
@@ -1227,7 +1227,6 @@
                 events.push(newEvent);
                 localStorage.setItem('chapter_events', JSON.stringify(events));
 
-                // Create notifications for all users
                 this.createEventNotification(newEvent);
 
                 return { success: true, event: newEvent };
@@ -1249,7 +1248,6 @@
                 const filtered = events.filter(e => e.id !== eventId);
                 localStorage.setItem('chapter_events', JSON.stringify(filtered));
 
-                // Delete related notifications
                 const notifications = this.getNotifications();
                 const filteredNotifications = notifications.filter(n => n.eventId !== eventId);
                 localStorage.setItem('chapter_notifications', JSON.stringify(filteredNotifications));
@@ -1281,7 +1279,6 @@
                 return { success: false, message: 'Event tidak ditemukan' };
             },
 
-            // ============= NOTIFICATION FUNCTIONS =============
             getNotifications: function() {
                 return JSON.parse(localStorage.getItem('chapter_notifications')) || [];
             },
@@ -1290,7 +1287,7 @@
                 const notifications = this.getNotifications();
                 const newNotification = {
                     id: notifications.length + 1,
-                    userId: null, // untuk semua user
+                    userId: null,
                     type: 'event',
                     eventId: event.id,
                     title: `Event Baru: ${event.title}`,
@@ -1304,7 +1301,6 @@
 
             getUserNotifications: function(userId) {
                 const notifications = this.getNotifications();
-                // Return notifications for all users (userId = null) and specific user notifications
                 return notifications.filter(n => n.userId === null || n.userId === userId)
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             },
@@ -1335,7 +1331,6 @@
                 return notifications.filter(n => !n.isRead).length;
             },
 
-            // ============= CLEANUP NOTIFICATIONS =============
             cleanupExpiredNotifications: function() {
                 const notifications = this.getNotifications();
                 const events = this.getEvents();
@@ -1344,31 +1339,25 @@
                 
                 let changed = false;
                 
-                // Filter notifikasi yang masih valid
                 const validNotifications = notifications.filter(notification => {
-                    // Notifikasi event
                     if (notification.type === 'event' && notification.eventId) {
                         const event = events.find(e => e.id === notification.eventId);
                         if (event) {
                             const eventDate = new Date(event.date);
                             eventDate.setHours(0, 0, 0, 0);
-                            // Hapus jika event sudah lewat
                             if (eventDate < today) {
                                 changed = true;
                                 return false;
                             }
                             return true;
                         } else {
-                            // Event tidak ditemukan (mungkin sudah dihapus)
                             changed = true;
                             return false;
                         }
                     }
-                    // Notifikasi non-event tetap dipertahankan
                     return true;
                 });
                 
-                // Simpan kembali jika ada perubahan
                 if (changed) {
                     localStorage.setItem('chapter_notifications', JSON.stringify(validNotifications));
                 }
@@ -1394,7 +1383,7 @@
             <div className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow p-4 sm:p-5 ${className}`}>{children}</div>
         );
 
-        // ==================== AVATAR UPLOAD COMPONENT ====================
+        // ==================== AVATAR UPLOAD ====================
         const AvatarUpload = ({ currentUser, onAvatarUpdate }) => {
             const [uploading, setUploading] = React.useState(false);
             const fileInputRef = React.useRef();
@@ -1458,7 +1447,7 @@
             );
         };
 
-        // ==================== NOTIFICATION COMPONENT (RESPONSIF) ====================
+        // ==================== NOTIFICATION ====================
         const NotificationBell = ({ currentUser }) => {
             const [showDropdown, setShowDropdown] = React.useState(false);
             const [notifications, setNotifications] = React.useState([]);
@@ -1466,13 +1455,12 @@
 
             React.useEffect(() => {
                 loadNotifications();
-                // Refresh notifications every 30 seconds
                 const interval = setInterval(loadNotifications, 30000);
                 return () => clearInterval(interval);
             }, []);
 
             const loadNotifications = () => {
-                AppState.cleanupExpiredNotifications(); // Bersihkan notifikasi kadaluarsa
+                AppState.cleanupExpiredNotifications();
                 const userNotifications = AppState.getUserNotifications(currentUser?.id);
                 setNotifications(userNotifications);
                 setUnreadCount(userNotifications.filter(n => !n.isRead).length);
@@ -1511,8 +1499,8 @@
                     </button>
 
                     {showDropdown && (
-                        <div className="notification-dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-[60] border border-gray-200 max-h-[80vh] overflow-y-auto">
-                            <div className="p-3 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white">
+                        <div className="notification-dropdown">
+                            <div className="p-3 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
                                 <h3 className="font-semibold text-gray-900">Notifikasi</h3>
                                 {unreadCount > 0 && (
                                     <button
@@ -1523,7 +1511,7 @@
                                     </button>
                                 )}
                             </div>
-                            <div className="overflow-y-auto">
+                            <div className="overflow-y-auto max-h-[calc(80vh-120px)]">
                                 {notifications.length > 0 ? (
                                     notifications.map(notification => (
                                         <div
@@ -1567,7 +1555,7 @@
                                     </div>
                                 )}
                             </div>
-                            <div className="p-2 border-t border-gray-200 text-center sticky bottom-0 bg-white">
+                            <div className="p-2 border-t border-gray-200 text-center sticky bottom-0 bg-white rounded-b-lg">
                                 <a href="#/notifications" className="text-xs text-blue-600 hover:text-blue-800">
                                     Lihat semua notifikasi
                                 </a>
@@ -1578,7 +1566,7 @@
             );
         };
 
-        // ==================== CREATE EVENT MODAL DENGAN FLYER UPLOAD ====================
+        // ==================== CREATE EVENT MODAL ====================
         const CreateEventModal = ({ isOpen, onClose, onCreate }) => {
             const [formData, setFormData] = React.useState({
                 title: '',
@@ -1642,7 +1630,6 @@
                 setError('');
                 setLoading(true);
 
-                // Validasi
                 if (!formData.title || !formData.date || !formData.time) {
                     setError('Judul, tanggal, dan waktu harus diisi');
                     setLoading(false);
@@ -1672,10 +1659,9 @@
             };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto edit-profile-modal" onClick={e => e.stopPropagation()}>
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto edit-profile-modal modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0 z-10">
                             <div className="flex items-center text-white">
                                 <i className="fas fa-calendar-plus mr-3 text-xl"></i>
                                 <h2 className="text-lg sm:text-xl font-bold">Buat Event Baru</h2>
@@ -1692,7 +1678,6 @@
                                 </div>
                             )}
 
-                            {/* Flyer Upload - Opsional */}
                             <div className="border-b border-gray-200 pb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     <i className="fas fa-image mr-2 text-purple-500"></i>
@@ -1746,7 +1731,6 @@
                                 </div>
                             </div>
 
-                            {/* Judul Event */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Nama Event *</label>
                                 <input
@@ -1760,7 +1744,6 @@
                                 />
                             </div>
 
-                            {/* Tanggal dan Waktu */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal *</label>
@@ -1786,7 +1769,6 @@
                                 </div>
                             </div>
 
-                            {/* Speaker dan Chapter */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Speaker (Opsional)</label>
@@ -1817,7 +1799,6 @@
                                 </div>
                             </div>
 
-                            {/* Metode Event */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Metode *</label>
                                 <div className="flex flex-wrap gap-4">
@@ -1846,7 +1827,6 @@
                                 </div>
                             </div>
 
-                            {/* Fields berdasarkan metode */}
                             {formData.method === 'online' && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Link Zoom/Meeting *</label>
@@ -1902,7 +1882,6 @@
                                 </>
                             )}
 
-                            {/* Deskripsi */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi Event</label>
                                 <textarea
@@ -1915,7 +1894,6 @@
                                 />
                             </div>
 
-                            {/* Buttons */}
                             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
                                 <Button
                                     type="submit"
@@ -1944,10 +1922,9 @@
             );
         };
 
-        // ==================== EVENT CARD DENGAN FLYER THUMBNAIL DI POJOK ====================
+        // ==================== EVENT CARD ====================
         const EventCard = ({ event, currentUser, onJoin, onLeave, onDelete }) => {
             const [isJoined, setIsJoined] = React.useState(event.attendees?.includes(currentUser?.id));
-            const [showDetails, setShowDetails] = React.useState(false);
 
             const handleJoin = () => {
                 onJoin(event.id);
@@ -1969,7 +1946,6 @@
                 });
             };
 
-            // Cek apakah event sudah lewat
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const eventDate = new Date(event.date);
@@ -1977,8 +1953,7 @@
             const isExpired = eventDate < today;
 
             return (
-                <Card className={`event-card overflow-hidden ${showDetails ? 'ring-2 ring-purple-400' : ''} ${isExpired ? 'opacity-75' : ''}`}>
-                    {/* Header dengan warna berdasarkan metode dan FLYER THUMBNAIL di pojok kanan */}
+                <Card className={`event-card overflow-hidden ${isExpired ? 'opacity-75' : ''}`}>
                     <div className={`relative -mx-4 -mt-4 px-4 sm:-mx-5 sm:-mt-5 sm:px-5 py-3 mb-4 ${
                         event.method === 'online' ? 'event-method-online' : 'event-method-offline'
                     } text-white`}>
@@ -1997,7 +1972,6 @@
                                 )}
                             </div>
                             <div className="flex items-center space-x-2">
-                                {/* FLYER THUMBNAIL - KECIL DI POJOK KANAN */}
                                 {event.flyer && (
                                     <img 
                                         src={event.flyer} 
@@ -2019,7 +1993,6 @@
                         </div>
                     </div>
 
-                    {/* Content */}
                     <div className="space-y-3">
                         <div>
                             <h3 className="text-base sm:text-lg font-bold text-gray-900">{event.title}</h3>
@@ -2081,7 +2054,6 @@
                             </p>
                         )}
 
-                        {/* Attendees */}
                         <div className="flex items-center justify-between pt-2 border-t">
                             <div className="flex items-center">
                                 <div className="flex -space-x-2">
@@ -2178,7 +2150,6 @@
                 setLoading(true);
 
                 try {
-                    // Validasi password jika ingin ganti password
                     if (formData.newPassword || formData.confirmPassword) {
                         if (!formData.currentPassword) {
                             setError('Password saat ini harus diisi untuk mengganti password');
@@ -2186,7 +2157,6 @@
                             return;
                         }
 
-                        // Verifikasi password saat ini
                         const isValid = AppState.verifyPassword(currentUser.id, formData.currentPassword);
                         if (!isValid) {
                             setError('Password saat ini salah');
@@ -2207,7 +2177,6 @@
                         }
                     }
 
-                    // Siapkan data untuk diupdate
                     const updateData = {
                         name: formData.name,
                         businessName: formData.businessName,
@@ -2218,7 +2187,6 @@
                         email: formData.email
                     };
 
-                    // Tambah password baru jika ada
                     if (formData.newPassword) {
                         updateData.newPassword = formData.newPassword;
                     }
@@ -2241,10 +2209,9 @@
             };
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto edit-profile-modal" onClick={e => e.stopPropagation()}>
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto edit-profile-modal modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0 z-10">
                             <div className="flex items-center text-white">
                                 <i className="fas fa-edit mr-3 text-xl"></i>
                                 <h2 className="text-lg sm:text-xl font-bold">Edit Profile</h2>
@@ -2255,7 +2222,6 @@
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
-                            {/* Info yang tidak bisa diedit */}
                             <div className="bg-blue-50 p-4 rounded-lg">
                                 <p className="text-sm text-blue-800 mb-2">
                                     <i className="fas fa-info-circle mr-2"></i>
@@ -2293,7 +2259,6 @@
                                 </div>
                             )}
 
-                            {/* Form Fields */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
@@ -2379,7 +2344,6 @@
                                 </div>
                             </div>
 
-                            {/* Password Change Section */}
                             <div className="border-t pt-4">
                                 <button
                                     type="button"
@@ -2430,7 +2394,6 @@
                                 )}
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
                                 <Button
                                     type="submit"
@@ -2467,10 +2430,9 @@
             const downline = AppState.getDownline(member.id, 'direct');
 
             return (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in" onClick={e => e.stopPropagation()}>
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0 z-10">
                             <div className="flex items-center text-white">
                                 <i className="fas fa-id-card mr-3 text-xl"></i>
                                 <h2 className="text-lg sm:text-xl font-bold">Profil Member</h2>
@@ -2480,9 +2442,7 @@
                             </button>
                         </div>
                         
-                        {/* Content */}
                         <div className="p-4 sm:p-6">
-                            {/* Avatar & Nama */}
                             <div className="flex flex-col items-center mb-6">
                                 <img 
                                     src={member.avatar} 
@@ -2504,7 +2464,6 @@
                                 </div>
                             </div>
 
-                            {/* Informasi Chapter & Hierarchy */}
                             <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 sm:p-5 rounded-xl mb-6">
                                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
                                     <i className="fas fa-sitemap mr-2 text-green-600"></i>
@@ -2556,7 +2515,6 @@
                                 </div>
                             </div>
 
-                            {/* Informasi Bisnis */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-5 rounded-xl mb-6">
                                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
                                     <i className="fas fa-briefcase mr-2 text-blue-600"></i>
@@ -2576,7 +2534,6 @@
                                 </div>
                             </div>
 
-                            {/* Kontak & Sosial Media */}
                             <div className="bg-gray-50 p-4 sm:p-5 rounded-xl mb-6">
                                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
                                     <i className="fas fa-address-book mr-2 text-blue-600"></i>
@@ -2618,7 +2575,6 @@
                                 </div>
                             </div>
 
-                            {/* Statistik KPI */}
                             <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 sm:p-5 rounded-xl">
                                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center text-sm sm:text-base">
                                     <i className="fas fa-chart-line mr-2 text-purple-600"></i>
@@ -2637,7 +2593,6 @@
                             </div>
                         </div>
 
-                        {/* Footer */}
                         <div className="bg-gray-50 px-4 sm:px-6 py-4 rounded-b-2xl flex justify-end">
                             <Button variant="secondary" onClick={onClose} className="text-sm">
                                 <i className="fas fa-times mr-2"></i>Tutup
@@ -2648,7 +2603,107 @@
             );
         };
 
-        // ==================== KPI CARD DENGAN BUTTON +/- ====================
+        // ==================== MEMBER LIST MODAL - FIXED VERSION ====================
+        const MemberListModal = ({ chapter, isOpen, onClose, members, allMembersKPI }) => {
+            if (!isOpen || !chapter) return null;
+
+            const [selectedMember, setSelectedMember] = React.useState(null);
+
+            return (
+                <>
+                    <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 modal-overlay" onClick={onClose}>
+                        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal-content" onClick={e => e.stopPropagation()}>
+                            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-4 sm:px-6 py-4 rounded-t-2xl flex justify-between items-center sticky top-0">
+                                <div className="flex items-center text-white">
+                                    <i className="fas fa-users mr-3 text-xl"></i>
+                                    <h2 className="text-lg sm:text-xl font-bold">Member {chapter.name}</h2>
+                                </div>
+                                <button onClick={onClose} className="text-white hover:text-gray-200 transition">
+                                    <i className="fas fa-times text-2xl"></i>
+                                </button>
+                            </div>
+
+                            <div className="p-4 sm:p-6">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-semibold">{members.length}</span> anggota
+                                    </p>
+                                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs">
+                                        {chapter.region}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {members.length > 0 ? (
+                                        members.map(member => {
+                                            const kpi = allMembersKPI.find(m => m.id === member.id) || member;
+                                            return (
+                                                <div
+                                                    key={member.id}
+                                                    onClick={() => setSelectedMember(member)}
+                                                    className="member-list-item flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+                                                >
+                                                    <div className="flex items-center flex-1 min-w-0">
+                                                        <img 
+                                                            src={member.avatar} 
+                                                            alt={member.name} 
+                                                            className="w-10 h-10 rounded-full mr-3 object-cover border-2 border-green-200"
+                                                        />
+                                                        <div className="min-w-0">
+                                                            <p className="font-semibold text-gray-900 text-sm truncate">{member.name}</p>
+                                                            <p className="text-xs text-gray-600 truncate">{member.businessName}</p>
+                                                            <div className="flex items-center mt-1">
+                                                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                                                    member.badge === 'Champion' 
+                                                                        ? 'bg-yellow-100 text-yellow-800' 
+                                                                        : 'bg-blue-100 text-blue-800'
+                                                                }`}>
+                                                                    {member.badge}
+                                                                </span>
+                                                                {member.id === chapter.leader && (
+                                                                    <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">
+                                                                        <i className="fas fa-crown mr-1 text-xs"></i>Leader
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right ml-4">
+                                                        <p className="text-sm font-bold text-green-600">{kpi.currentWeekPoints || 0}</p>
+                                                        <p className="text-xs text-gray-500">minggu ini</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="text-center py-12">
+                                            <i className="fas fa-user-slash text-4xl text-gray-300 mb-3"></i>
+                                            <p className="text-gray-500">Belum ada member di chapter ini</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 px-4 sm:px-6 py-4 rounded-b-2xl flex justify-end">
+                                <Button variant="secondary" onClick={onClose} className="text-sm">
+                                    Tutup
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {selectedMember && (
+                        <MemberProfileModal
+                            member={selectedMember}
+                            isOpen={!!selectedMember}
+                            onClose={() => setSelectedMember(null)}
+                        />
+                    )}
+                </>
+            );
+        };
+
+        // ==================== KPI CARD ====================
         const KPICard = ({ kpi, onUpdate, disabled = false }) => {
             const getIcon = (id) => {
                 switch(id) {
@@ -2730,7 +2785,6 @@
                                 -
                             </button>
                             
-                            {/* Progress bar */}
                             <div className="flex-1 h-2 sm:h-3 bg-gray-200 rounded-full overflow-hidden">
                                 <div 
                                     className={`h-full ${kpi.completed ? 'bg-green-500' : 'bg-orange-500'}`}
@@ -2750,7 +2804,6 @@
                             </button>
                         </div>
 
-                        {/* Quick buttons untuk mencapai target */}
                         {!kpi.completed && (
                             <div className="flex justify-end mt-2 space-x-2">
                                 <button
@@ -2786,7 +2839,7 @@
             );
         };
 
-        // ==================== CUTOFF INFO COMPONENT ====================
+        // ==================== CUTOFF INFO ====================
         const CutoffInfo = ({ weekInfo }) => {
             return (
                 <div className="cutoff-info">
@@ -2891,7 +2944,6 @@
                             </p>
                         </form>
 
-                        {/* DEMO ACCESS */}
                         <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <p className="text-sm font-medium text-gray-800 mb-3 flex items-center">
                                 <i className="fas fa-robot mr-2 text-blue-600"></i>
@@ -2937,7 +2989,7 @@
             );
         };
 
-        // ==================== REGISTER PAGE DENGAN CHAPTER ====================
+        // ==================== REGISTER PAGE ====================
         const Register = ({ onRegister }) => {
             const [formData, setFormData] = React.useState({
                 name: '',
@@ -3055,7 +3107,6 @@
                         )}
                         
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Avatar Upload Section */}
                             <div className="flex flex-col items-center mb-6">
                                 <div className="relative mb-3">
                                     <img 
@@ -3152,7 +3203,6 @@
                                             placeholder="••••••••" required />
                                     </div>
                                     
-                                    {/* DROPDOWN CHAPTER */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Pilih Chapter *
@@ -3222,7 +3272,6 @@
             const downlineCount = state.getDownline(currentUser.id, 'direct').length;
             const totalDownline = state.getDownline(currentUser.id, 'all').length;
             
-            // Filter upcoming events (next 7 days)
             const today = new Date();
             const nextWeek = new Date();
             nextWeek.setDate(today.getDate() + 7);
@@ -3264,8 +3313,7 @@
             const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
-                    {/* Header Profile with Avatar Upload */}
+                <div className="content-container">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
                             <AvatarUpload currentUser={{...currentUser, avatar}} onAvatarUpdate={handleAvatarUpdate} />
@@ -3296,10 +3344,8 @@
                         </Button>
                     </div>
 
-                    {/* Cutoff Info */}
                     <CutoffInfo weekInfo={weekInfo} />
 
-                    {/* Business Contact Card */}
                     <Card className="mb-6 bg-gradient-to-r from-gray-50 to-white">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -3337,7 +3383,6 @@
                         </div>
                     </Card>
 
-                    {/* Week Info & Rank */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                         <div>
                             <p className="text-sm text-gray-600">
@@ -3352,7 +3397,6 @@
                         </div>
                     </div>
 
-                    {/* Progress Overview */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
                             <p className="text-xs text-gray-600">Total Points</p>
@@ -3365,7 +3409,6 @@
                         </Card>
                     </div>
 
-                    {/* Network Stats */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
                         <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
                             <p className="text-xs text-gray-600">Bawahan Langsung</p>
@@ -3379,7 +3422,6 @@
                         </Card>
                     </div>
 
-                    {/* Upcoming Events */}
                     {upcomingEvents.length > 0 && (
                         <div className="mb-6">
                             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
@@ -3400,7 +3442,6 @@
                         </div>
                     )}
 
-                    {/* Current Week KPI */}
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-gray-900">
@@ -3419,7 +3460,6 @@
                         </div>
                     </div>
 
-                    {/* Chapter Summary */}
                     <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100 mb-6">
                         <h3 className="font-semibold text-gray-900 mb-4 flex items-center text-sm sm:text-base">
                             <i className="fas fa-users mr-2 text-purple-600"></i>
@@ -3445,7 +3485,6 @@
                         </div>
                     </Card>
 
-                    {/* Leaderboard Preview */}
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Leaderboard Minggu Ini</h3>
@@ -3462,7 +3501,6 @@
                         </div>
                     </div>
 
-                    {/* Edit Profile Modal */}
                     <EditProfileModal
                         isOpen={showEditProfile}
                         onClose={() => setShowEditProfile(false)}
@@ -3473,7 +3511,7 @@
             );
         };
 
-        // ==================== LEADERBOARD CARD DENGAN KLIK AVATAR ====================
+        // ==================== LEADERBOARD CARD ====================
         const MemberLeaderboardCard = ({ member, rank }) => {
             const [showProfile, setShowProfile] = React.useState(false);
             
@@ -3512,7 +3550,6 @@
                         </div>
                     </Card>
 
-                    {/* Modal Profile Member */}
                     <MemberProfileModal 
                         member={member}
                         isOpen={showProfile}
@@ -3522,12 +3559,14 @@
             );
         };
 
-        // ==================== SUPER ADMIN DASHBOARD ====================
+        // ==================== SUPER ADMIN DASHBOARD - FIXED VERSION ====================
         const SuperAdminDashboard = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
             const [avatar, setAvatar] = React.useState(currentUser?.avatar);
             const [showEditProfile, setShowEditProfile] = React.useState(false);
             const [showCreateEvent, setShowCreateEvent] = React.useState(false);
+            const [selectedChapter, setSelectedChapter] = React.useState(null);
+            
             const allMembers = state.getAllMembers();
             const chapterSummary = state.getChapterSummary();
             const allMembersKPI = state.getAllMembersKPI();
@@ -3571,11 +3610,16 @@
                 setRefresh(prev => prev + 1);
             };
 
-            const weekRange = `${weekInfo.monday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${weekInfo.sunday.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+            const handleChapterClick = (chapter) => {
+                setSelectedChapter(chapter);
+            };
+
+            const handleCloseModal = () => {
+                setSelectedChapter(null);
+            };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
-                    {/* Header */}
+                <div className="content-container">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
                             <AvatarUpload currentUser={{...currentUser, avatar}} onAvatarUpdate={handleAvatarUpdate} />
@@ -3611,10 +3655,8 @@
                         </div>
                     </div>
 
-                    {/* Cutoff Info */}
                     <CutoffInfo weekInfo={weekInfo} />
 
-                    {/* Chapter Stats */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                         <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
                             <p className="text-xs text-gray-600">Total Member</p>
@@ -3634,7 +3676,6 @@
                         </Card>
                     </div>
 
-                    {/* Events Section */}
                     <div className="mb-8">
                         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                             <i className="fas fa-calendar-alt mr-2 text-purple-600"></i>
@@ -3668,7 +3709,6 @@
                         </div>
                     </div>
 
-                    {/* Chapter Overview */}
                     <div className="mb-8">
                         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                             <i className="fas fa-map-marker-alt mr-2 text-blue-600"></i>
@@ -3682,7 +3722,11 @@
                                     : 0;
                                 
                                 return (
-                                    <Card key={chapter.id} className="border-l-4 border-blue-400">
+                                    <Card 
+                                        key={chapter.id} 
+                                        className="chapter-card border-l-4 border-blue-400 hover:shadow-lg transition-all cursor-pointer"
+                                        onClick={() => handleChapterClick(chapter)}
+                                    >
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="font-bold text-gray-900 text-sm sm:text-base">{chapter.name}</h3>
                                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
@@ -3705,13 +3749,16 @@
                                                 Leader: {allMembersKPI.find(m => m.id === chapter.leader)?.name}
                                             </p>
                                         )}
+                                        <div className="mt-2 text-xs text-blue-600 flex items-center">
+                                            <i className="fas fa-hand-pointer mr-1"></i>
+                                            Klik untuk lihat anggota
+                                        </div>
                                     </Card>
                                 );
                             })}
                         </div>
                     </div>
 
-                    {/* Member Directory */}
                     <div>
                         <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                             <i className="fas fa-users mr-2 text-blue-600"></i>
@@ -3788,20 +3835,29 @@
                         </div>
                     </div>
 
-                    {/* Create Event Modal */}
                     <CreateEventModal
                         isOpen={showCreateEvent}
                         onClose={() => setShowCreateEvent(false)}
                         onCreate={handleCreateEvent}
                     />
 
-                    {/* Edit Profile Modal */}
                     <EditProfileModal
                         isOpen={showEditProfile}
                         onClose={() => setShowEditProfile(false)}
                         currentUser={{...currentUser, avatar}}
                         onUpdate={handleProfileUpdate}
                     />
+
+                    {/* Member List Modal - Simple Version */}
+                    {selectedChapter && (
+                        <MemberListModal
+                            chapter={selectedChapter}
+                            isOpen={!!selectedChapter}
+                            onClose={handleCloseModal}
+                            members={allMembers.filter(m => m.chapter === selectedChapter.name)}
+                            allMembersKPI={allMembersKPI}
+                        />
+                    )}
                 </div>
             );
         };
@@ -3809,7 +3865,7 @@
         // ==================== EVENTS PAGE ====================
         const EventsPage = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
-            const [filter, setFilter] = React.useState('upcoming'); // upcoming, past, all
+            const [filter, setFilter] = React.useState('upcoming');
             const events = state.getEvents();
             
             const today = new Date();
@@ -3821,9 +3877,9 @@
                 return true;
             }).sort((a, b) => {
                 if (filter === 'past') {
-                    return new Date(b.date) - new Date(a.date); // descending for past
+                    return new Date(b.date) - new Date(a.date);
                 }
-                return new Date(a.date) - new Date(b.date); // ascending for upcoming
+                return new Date(a.date) - new Date(b.date);
             });
 
             const handleJoinEvent = (eventId) => {
@@ -3837,11 +3893,10 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
+                <div className="content-container">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Events</h1>
                     <p className="text-sm text-gray-600 mb-6">Daftar event chapter</p>
 
-                    {/* Filter Buttons */}
                     <div className="flex flex-wrap gap-2 mb-6">
                         <button
                             onClick={() => setFilter('upcoming')}
@@ -3878,7 +3933,6 @@
                         </button>
                     </div>
 
-                    {/* Events List */}
                     <div className="space-y-4">
                         {filteredEvents.length > 0 ? (
                             filteredEvents.map(event => (
@@ -3924,7 +3978,7 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
+                <div className="content-container">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-0">Notifikasi</h1>
                         {notifications.some(n => !n.isRead) && (
@@ -3989,7 +4043,7 @@
             );
         };
 
-        // ==================== LEADERBOARD PAGE DENGAN FILTER ====================
+        // ==================== LEADERBOARD PAGE ====================
         const LeaderboardPage = ({ state }) => {
             const [searchTerm, setSearchTerm] = React.useState('');
             const [filterBy, setFilterBy] = React.useState('all');
@@ -4012,14 +4066,12 @@
             });
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
+                <div className="content-container">
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Leaderboard</h1>
                     <p className="text-sm text-gray-600 mb-4">Minggu {weekInfo.weekNumber} • {weekInfo.startFormatted} - {weekInfo.endFormatted}</p>
                     
-                    {/* Cutoff Info */}
                     <CutoffInfo weekInfo={weekInfo} />
                     
-                    {/* Filter Section */}
                     <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
                         <div className="flex flex-col lg:flex-row gap-4">
                             <div className="flex-1">
@@ -4142,7 +4194,7 @@
             };
 
             return (
-                <div className="max-w-7xl mx-auto px-4 pb-24">
+                <div className="content-container">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-0">Profile Saya</h1>
                         <Button 
@@ -4187,7 +4239,6 @@
                         </div>
                     </Card>
 
-                    {/* My Events */}
                     {myEvents.length > 0 && (
                         <Card className="mb-6">
                             <h3 className="font-semibold text-gray-900 mb-4 flex items-center text-sm sm:text-base">
@@ -4216,7 +4267,6 @@
                         </Card>
                     )}
 
-                    {/* Network Info */}
                     <Card className="mb-6">
                         <h3 className="font-semibold text-gray-900 mb-4 flex items-center text-sm sm:text-base">
                             <i className="fas fa-sitemap mr-2 text-blue-600"></i>
@@ -4327,7 +4377,6 @@
                         </Card>
                     </div>
 
-                    {/* Edit Profile Modal */}
                     <EditProfileModal
                         isOpen={showEditProfile}
                         onClose={() => setShowEditProfile(false)}
@@ -4338,7 +4387,7 @@
             );
         };
 
-        // ==================== FOOTER COMPONENT ====================
+        // ==================== FOOTER ====================
         const Footer = () => {
             return (
                 <footer className="footer py-6 px-4 text-center">
@@ -4359,9 +4408,8 @@
             );
         };
 
-        // ==================== HAMBURGER MENU COMPONENT ====================
+        // ==================== HAMBURGER MENU ====================
         const HamburgerMenu = ({ currentUser, isOpen, onClose }) => {
-            // Dapatkan active menu dari hash
             const getActiveFromHash = () => {
                 const hash = window.location.hash;
                 if (hash.includes('dashboard')) return 'home';
@@ -4387,21 +4435,14 @@
 
             return (
                 <>
-                    {/* Overlay */}
                     <div
-                        className={`menu-overlay fixed inset-0 bg-black bg-opacity-50 z-[70] ${
-                            isOpen ? 'open' : ''
-                        }`}
+                        className={`menu-overlay ${isOpen ? 'open' : ''}`}
                         onClick={onClose}
                     ></div>
 
-                    {/* Side Menu */}
                     <div
-                        className={`side-menu fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[80] p-6 overflow-y-auto ${
-                            isOpen ? 'open' : ''
-                        }`}
+                        className={`side-menu ${isOpen ? 'open' : ''}`}
                     >
-                        {/* User Info */}
                         <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-gray-200">
                             <img
                                 src={currentUser?.avatar}
@@ -4426,7 +4467,6 @@
                             </div>
                         </div>
 
-                        {/* Menu Items */}
                         <div className="space-y-2">
                             {menuItems.map(item => (
                                 <button
@@ -4447,7 +4487,6 @@
                             ))}
                         </div>
 
-                        {/* Additional Info */}
                         <div className="mt-8">
                             <div className="bg-gray-50 rounded-xl p-4 text-center">
                                 <p className="text-xs text-gray-500 mb-2">Kode Referral</p>
@@ -4459,14 +4498,12 @@
             );
         };
 
-        // ==================== NAVIGATION HEADER ====================
+        // ==================== NAVIGATION ====================
         const Navigation = ({ currentUser, onLogout }) => {
-            const unreadCount = AppState.getUnreadNotificationCount(currentUser?.id);
             const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
             return (
                 <>
-                    {/* STICKY HEADER - FROZEN */}
                     <nav className="sticky-header">
                         <div className="flex justify-between items-center max-w-7xl mx-auto">
                             <div className="flex items-center min-w-0">
@@ -4486,7 +4523,6 @@
                             </div>
                             <div className="flex items-center space-x-1 sm:space-x-4">
                                 <NotificationBell currentUser={currentUser} />
-                                {/* HAMBURGER MENU BUTTON */}
                                 <button
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                                     className="menu-toggle-button w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all"
@@ -4501,7 +4537,6 @@
                         </div>
                     </nav>
 
-                    {/* Side Menu */}
                     <HamburgerMenu 
                         currentUser={currentUser} 
                         isOpen={isMenuOpen} 
@@ -4544,7 +4579,6 @@
                 window.location.hash = '/login';
             };
 
-            // Protected routes
             if (!currentUser && !currentPath.includes('/login') && !currentPath.includes('/register')) {
                 window.location.hash = '/login';
                 return null;
@@ -4552,7 +4586,6 @@
 
             const path = currentPath.split('?')[0];
             
-            // Public pages
             if (path === '#/login' || path === '#/' || path === '') {
                 return <Login onLogin={handleLogin} />;
             }
@@ -4561,25 +4594,23 @@
                 return <Register onRegister={handleRegister} />;
             }
             
-            // Protected pages
             if (currentUser) {
                 let page;
-                let activeNav = 'home';
                 
                 if (currentUser.role === 'super_admin') {
-                    if (path === '#/dashboard') { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
-                    else if (path === '#/events') { page = <EventsPage currentUser={currentUser} state={AppState} />; activeNav = 'events'; }
-                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; activeNav = 'leaderboard'; }
-                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; activeNav = 'profile'; }
-                    else if (path === '#/notifications') { page = <NotificationsPage currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
-                    else { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                    if (path === '#/dashboard') { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; }
+                    else if (path === '#/events') { page = <EventsPage currentUser={currentUser} state={AppState} />; }
+                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; }
+                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; }
+                    else if (path === '#/notifications') { page = <NotificationsPage currentUser={currentUser} state={AppState} />; }
+                    else { page = <SuperAdminDashboard currentUser={currentUser} state={AppState} />; }
                 } else {
-                    if (path === '#/dashboard') { page = <MemberDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
-                    else if (path === '#/events') { page = <EventsPage currentUser={currentUser} state={AppState} />; activeNav = 'events'; }
-                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; activeNav = 'leaderboard'; }
-                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; activeNav = 'profile'; }
-                    else if (path === '#/notifications') { page = <NotificationsPage currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
-                    else { page = <MemberDashboard currentUser={currentUser} state={AppState} />; activeNav = 'home'; }
+                    if (path === '#/dashboard') { page = <MemberDashboard currentUser={currentUser} state={AppState} />; }
+                    else if (path === '#/events') { page = <EventsPage currentUser={currentUser} state={AppState} />; }
+                    else if (path === '#/leaderboard') { page = <LeaderboardPage state={AppState} />; }
+                    else if (path === '#/profile') { page = <ProfilePage currentUser={currentUser} />; }
+                    else if (path === '#/notifications') { page = <NotificationsPage currentUser={currentUser} state={AppState} />; }
+                    else { page = <MemberDashboard currentUser={currentUser} state={AppState} />; }
                 }
                 
                 return (
