@@ -24,6 +24,7 @@
             -moz-osx-font-smoothing: grayscale;
             margin: 0;
             padding: 0;
+            padding-bottom: 70px;
         }
         
         #root {
@@ -46,6 +47,7 @@
 
         .main-content {
             padding-top: 70px;
+            padding-bottom: 80px;
             min-height: 100vh;
             width: 100%;
         }
@@ -53,44 +55,74 @@
         @media (max-width: 640px) {
             .main-content {
                 padding-top: 65px;
+                padding-bottom: 70px;
             }
         }
 
-        /* Side menu */
-        .side-menu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
+        /* BOTTOM NAVIGATION */
+        .bottom-nav {
             position: fixed;
-            top: 0;
-            right: 0;
-            height: 100vh;
-            width: 320px;
-            background-color: white;
-            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-            z-index: 1100;
-            overflow-y: auto;
-        }
-
-        .side-menu.open {
-            transform: translateX(0);
-        }
-
-        .menu-overlay {
-            position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1050;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            background-color: white;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            padding: 8px 4px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
         }
 
-        .menu-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active i, .nav-item.active span {
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+            margin-bottom: 2px;
+            color: #6b7280;
+        }
+
+        .nav-item span {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        @media (max-width: 640px) {
+            .nav-item {
+                padding: 4px 8px;
+            }
+            .nav-item i {
+                font-size: 1.2rem;
+            }
+            .nav-item span {
+                font-size: 0.65rem;
+            }
         }
 
         /* Notification dropdown */
@@ -364,6 +396,24 @@
             padding-left: 1rem;
             padding-right: 1rem;
         }
+
+        /* Logout button */
+        .logout-btn {
+            transition: all 0.2s;
+        }
+        .logout-btn:hover {
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+
+        /* Hide scrollbar for bottom nav */
+        .bottom-nav::-webkit-scrollbar {
+            display: none;
+        }
+        .bottom-nav {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body>
@@ -371,7 +421,7 @@
 
     <script type="text/babel">
         // -------------------------------------------------------------------
-        // CHAPTER KPI TRACKER - FIXED VERSION WITH WORKING MODAL
+        // CHAPTER KPI TRACKER - WITH BOTTOM NAVIGATION
         // -------------------------------------------------------------------
         
         // === CLEAR ALL OLD DATA - FRESH START ===
@@ -2603,7 +2653,7 @@
             );
         };
 
-        // ==================== MEMBER LIST MODAL - FIXED VERSION ====================
+        // ==================== MEMBER LIST MODAL ====================
         const MemberListModal = ({ chapter, isOpen, onClose, members, allMembersKPI }) => {
             if (!isOpen || !chapter) return null;
 
@@ -3559,7 +3609,7 @@
             );
         };
 
-        // ==================== SUPER ADMIN DASHBOARD - FIXED VERSION ====================
+        // ==================== SUPER ADMIN DASHBOARD ====================
         const SuperAdminDashboard = ({ currentUser, state }) => {
             const [refresh, setRefresh] = React.useState(0);
             const [avatar, setAvatar] = React.useState(currentUser?.avatar);
@@ -3848,16 +3898,13 @@
                         onUpdate={handleProfileUpdate}
                     />
 
-                    {/* Member List Modal - Simple Version */}
-                    {selectedChapter && (
-                        <MemberListModal
-                            chapter={selectedChapter}
-                            isOpen={!!selectedChapter}
-                            onClose={handleCloseModal}
-                            members={allMembers.filter(m => m.chapter === selectedChapter.name)}
-                            allMembersKPI={allMembersKPI}
-                        />
-                    )}
+                    <MemberListModal
+                        chapter={selectedChapter}
+                        isOpen={!!selectedChapter}
+                        onClose={handleCloseModal}
+                        members={selectedChapter ? allMembers.filter(m => m.chapter === selectedChapter.name) : []}
+                        allMembersKPI={allMembersKPI}
+                    />
                 </div>
             );
         };
@@ -4408,141 +4455,78 @@
             );
         };
 
-        // ==================== HAMBURGER MENU ====================
-        const HamburgerMenu = ({ currentUser, isOpen, onClose }) => {
+        // ==================== BOTTOM NAVIGATION ====================
+        const BottomNavigation = ({ currentUser }) => {
             const getActiveFromHash = () => {
                 const hash = window.location.hash;
-                if (hash.includes('dashboard')) return 'home';
+                if (hash.includes('dashboard')) return 'dashboard';
                 if (hash.includes('events')) return 'events';
                 if (hash.includes('leaderboard')) return 'leaderboard';
                 if (hash.includes('profile')) return 'profile';
-                return 'home';
+                if (hash.includes('notifications')) return 'notifications';
+                return 'dashboard';
             };
 
             const active = getActiveFromHash();
 
-            const menuItems = [
-                { id: 'home', icon: 'fas fa-home', label: 'Dashboard', href: '#/dashboard' },
+            const navItems = [
+                { id: 'dashboard', icon: 'fas fa-home', label: 'Home', href: '#/dashboard' },
                 { id: 'events', icon: 'fas fa-calendar', label: 'Events', href: '#/events' },
                 { id: 'leaderboard', icon: 'fas fa-trophy', label: 'Leaderboard', href: '#/leaderboard' },
-                { id: 'profile', icon: 'fas fa-user', label: 'Profile', href: '#/profile' }
+                { id: 'profile', icon: 'fas fa-user', label: 'Profile', href: '#/profile' },
+                { id: 'notifications', icon: 'fas fa-bell', label: 'Notif', href: '#/notifications' }
             ];
 
-            const handleItemClick = (href) => {
-                window.location.hash = href;
-                onClose();
-            };
-
             return (
-                <>
-                    <div
-                        className={`menu-overlay ${isOpen ? 'open' : ''}`}
-                        onClick={onClose}
-                    ></div>
-
-                    <div
-                        className={`side-menu ${isOpen ? 'open' : ''}`}
-                    >
-                        <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-gray-200">
-                            <img
-                                src={currentUser?.avatar}
-                                alt={currentUser?.name}
-                                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-blue-100 object-cover"
-                            />
-                            <div className="min-w-0">
-                                <h3 className="font-bold text-gray-900 text-sm sm:text-base truncate">{currentUser?.name}</h3>
-                                <p className="text-xs text-gray-600 truncate">{currentUser?.businessName}</p>
-                                <div className="flex items-center mt-1">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${
-                                        currentUser?.badge === 'Champion' 
-                                            ? 'bg-yellow-100 text-yellow-800' 
-                                            : 'bg-blue-100 text-blue-800'
-                                    }`}>
-                                        {currentUser?.badge}
-                                    </span>
-                                    <span className="text-xs text-gray-500 ml-2 truncate">
-                                        {currentUser?.chapter}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            {menuItems.map(item => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => handleItemClick(item.href)}
-                                    className={`w-full flex items-center space-x-4 p-4 rounded-xl transition-all text-sm ${
-                                        active === item.id
-                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <i className={`${item.icon} text-xl w-6`}></i>
-                                    <span className="font-medium">{item.label}</span>
-                                    {active === item.id && (
-                                        <i className="fas fa-check-circle ml-auto"></i>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="mt-8">
-                            <div className="bg-gray-50 rounded-xl p-4 text-center">
-                                <p className="text-xs text-gray-500 mb-2">Kode Referral</p>
-                                <p className="font-mono font-bold text-blue-600 text-sm">{currentUser?.referralCode}</p>
-                            </div>
-                        </div>
-                    </div>
-                </>
+                <nav className="bottom-nav">
+                    {navItems.map(item => (
+                        <a
+                            key={item.id}
+                            href={item.href}
+                            className={`nav-item ${active === item.id ? 'active' : ''}`}
+                        >
+                            <i className={item.icon}></i>
+                            <span>{item.label}</span>
+                            {item.id === 'notifications' && currentUser && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                    {AppState.getUnreadNotificationCount(currentUser.id)}
+                                </span>
+                            )}
+                        </a>
+                    ))}
+                </nav>
             );
         };
 
         // ==================== NAVIGATION ====================
         const Navigation = ({ currentUser, onLogout }) => {
-            const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
             return (
-                <>
-                    <nav className="sticky-header">
-                        <div className="flex justify-between items-center max-w-7xl mx-auto">
-                            <div className="flex items-center min-w-0">
-                                <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent truncate">
-                                    KPI Monitoring
-                                </h1>
-                                {currentUser?.role === 'super_admin' && (
-                                    <span className="ml-2 sm:ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
-                                        <i className="fas fa-crown mr-1"></i>Super Admin
-                                    </span>
-                                )}
-                                {currentUser?.role === 'member' && currentUser?.badge === 'Champion' && (
-                                    <span className="ml-2 sm:ml-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
-                                        <i className="fas fa-crown mr-1"></i>Champion
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center space-x-1 sm:space-x-4">
-                                <NotificationBell currentUser={currentUser} />
-                                <button
-                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className="menu-toggle-button w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all"
-                                >
-                                    <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-sm sm:text-xl transition-transform`}></i>
-                                </button>
-                                <span className="text-xs sm:text-sm text-gray-700 hidden md:block">{currentUser?.name}</span>
-                                <button onClick={onLogout} className="text-gray-500 hover:text-gray-700 p-1 sm:p-2">
-                                    <i className="fas fa-sign-out-alt text-sm sm:text-lg"></i>
-                                </button>
-                            </div>
+                <nav className="sticky-header">
+                    <div className="flex justify-between items-center max-w-7xl mx-auto">
+                        <div className="flex items-center min-w-0">
+                            <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent truncate">
+                                KPI Monitoring
+                            </h1>
+                            {currentUser?.role === 'super_admin' && (
+                                <span className="ml-2 sm:ml-3 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
+                                    <i className="fas fa-crown mr-1"></i>Super Admin
+                                </span>
+                            )}
+                            {currentUser?.role === 'member' && currentUser?.badge === 'Champion' && (
+                                <span className="ml-2 sm:ml-3 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full hidden sm:inline-block">
+                                    <i className="fas fa-crown mr-1"></i>Champion
+                                </span>
+                            )}
                         </div>
-                    </nav>
-
-                    <HamburgerMenu 
-                        currentUser={currentUser} 
-                        isOpen={isMenuOpen} 
-                        onClose={() => setIsMenuOpen(false)}
-                    />
-                </>
+                        <div className="flex items-center space-x-1 sm:space-x-4">
+                            <NotificationBell currentUser={currentUser} />
+                            <span className="text-xs sm:text-sm text-gray-700 hidden md:block">{currentUser?.name}</span>
+                            <button onClick={onLogout} className="logout-btn text-gray-500 hover:text-gray-700 p-1 sm:p-2">
+                                <i className="fas fa-sign-out-alt text-sm sm:text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
             );
         };
 
@@ -4619,6 +4603,7 @@
                         <main className="main-content">
                             {page}
                         </main>
+                        <BottomNavigation currentUser={currentUser} />
                         <Footer />
                     </>
                 );
